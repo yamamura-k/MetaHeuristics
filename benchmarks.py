@@ -1,11 +1,53 @@
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 """
 Reference : https://qiita.com/nabenabe0928/items/08ed6495853c3dd08f1e
 """
 
 
-class ackley():
+class Function():
     def __init__(self):
+        self.name = None
+        self.opt = None
+        self.boundaries = None
+
+    def __call__(self, x):
+        raise NotImplementedError
+
+    def plot(self, pos1, pos2, best_pos1, best_pos2):
+        fig = plt.figure()
+        boundaries = list(self.boundaries)
+        func_y = []
+        diff_num = 50
+        diff = boundaries[1] - boundaries[0]
+        for x1 in range(diff_num):
+            x1 = boundaries[0] + (x1/diff_num)*diff
+            d = []
+            for x2 in range(diff_num):
+                x2 = boundaries[0] + (x2/diff_num)*diff
+                y = self(np.asarray([x2, x1]))
+                d.append(y)
+            func_y.insert(0, d)
+
+        extent = tuple(boundaries*2)
+        plt.imshow(func_y, interpolation="nearest",  cmap="jet", extent=extent)
+        plt.colorbar()
+
+        def plot(i):
+            plt.cla()
+            plt.imshow(func_y, interpolation="nearest",  cmap="jet", extent=extent)
+            plt.plot(pos1[i], pos2[i], 'o', color="orange", markeredgecolor="black")
+            plt.plot(best_pos1[i], best_pos2[i], 'o', color="red", markeredgecolor="black")
+            plt.title('step={}'.format(i))
+
+        ani = animation.FuncAnimation(fig, plot, len(pos1), interval=200)
+        ani.save(f"{self.name}_tmp.gif", writer="pillow")
+
+
+class ackley(Function):
+    def __init__(self):
+        super().__init__()
         self.name = "Ackley"
         self.opt = 0
         self.boundaries = np.array([-32.768, 32.768])
@@ -18,8 +60,9 @@ class ackley():
         return t1 + t2 + t3 + t4
 
 
-class sphere():
+class sphere(Function):
     def __init__(self):
+        super().__init__()
         self.name = "Sphere"
         self.opt = 0
         self.boundaries = np.array([-100, 100])
@@ -28,8 +71,9 @@ class sphere():
         return np.sum(x ** 2)
 
 
-class rosenbrock():
+class rosenbrock(Function):
     def __init__(self):
+        super().__init__()
         self.name = "Rosenbrock"
         self.opt = 0
         self.boundaries = np.array([-5, 5])
@@ -43,8 +87,9 @@ class rosenbrock():
         return val
 
 
-class styblinski():
+class styblinski(Function):
     def __init__(self):
+        super().__init__()
         self.name = "Styblinski-Tang"
         self.opt = -39.166165
         self.boundaries = np.array([-5, 4])
@@ -56,8 +101,9 @@ class styblinski():
         return 0.5 * (t1 + t2 + t3)
 
 
-class k_tablet():
+class k_tablet(Function):
     def __init__(self):
+        super().__init__()
         self.name = "k-tablet"
         self.opt = 0
         self.boundaries = np.array([-5.12, 5.12])
@@ -69,8 +115,9 @@ class k_tablet():
         return t1 + t2
 
 
-class weighted_sphere():
+class weighted_sphere(Function):
     def __init__(self):
+        super().__init__()
         self.name = "Weighted Sphere function or hyper ellipsodic function"
         self.opt = 0
         self.boundaries = np.array([-5.12, 5.12])
@@ -80,8 +127,9 @@ class weighted_sphere():
         return np.sum(val)
 
 
-class different_power():
+class different_power(Function):
     def __init__(self):
+        super().__init__()
         self.name = "Sum of different power function"
         self.opt = 0
         self.boundaries = np.array([-1, 1])
@@ -93,8 +141,9 @@ class different_power():
         return val
 
 
-class griewank():
+class griewank(Function):
     def __init__(self):
+        super().__init__()
         self.name = "Griewank"
         self.opt = 0
         self.boundaries = np.array([-600, 600])
