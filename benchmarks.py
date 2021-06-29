@@ -1,6 +1,9 @@
-import numpy as np
-import matplotlib.pyplot as plt
+import os
+
 import matplotlib.animation as animation
+import matplotlib.pyplot as plt
+import numpy as np
+
 """
 Reference : https://qiita.com/nabenabe0928/items/08ed6495853c3dd08f1e
 """
@@ -15,7 +18,7 @@ class Function():
     def __call__(self, x):
         raise NotImplementedError
 
-    def plot(self, pos1, pos2, best_pos1, best_pos2):
+    def plot(self, pos1, pos2, best_pos1, best_pos2, save_dir="./images"):
         fig = plt.figure()
         boundaries = list(self.boundaries)
         func_y = []
@@ -36,13 +39,17 @@ class Function():
 
         def plot(i):
             plt.cla()
-            plt.imshow(func_y, interpolation="nearest",  cmap="jet", extent=extent)
-            plt.plot(pos1[i], pos2[i], 'o', color="orange", markeredgecolor="black")
-            plt.plot(best_pos1[i], best_pos2[i], 'o', color="red", markeredgecolor="black")
+            plt.imshow(func_y, interpolation="nearest",
+                       cmap="jet", extent=extent)
+            plt.plot(pos1[i], pos2[i], 'o', color="orange",
+                     markeredgecolor="black")
+            plt.plot(best_pos1[i], best_pos2[i], 'o',
+                     color="red", markeredgecolor="black")
             plt.title('step={}'.format(i))
 
         ani = animation.FuncAnimation(fig, plot, len(pos1), interval=200)
-        ani.save(f"{self.name}_tmp.gif", writer="pillow")
+        os.makedirs(save_dir, exist_ok=True)
+        ani.save(f"{save_dir}/{self.name}_tmp.gif", writer="pillow")
 
 
 class ackley(Function):

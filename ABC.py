@@ -4,7 +4,9 @@ Sample implementation of Artificial Bee Colony Algorithm.
 Reference : https://link.springer.com/content/pdf/10.1007/s10898-007-9149-x.pdf
 """
 import numpy as np
-from benchmarks import ackley, sphere, rosenbrock, styblinski, k_tablet, weighted_sphere, different_power, griewank
+
+from benchmarks import (ackley, different_power, griewank, k_tablet,
+                        rosenbrock, sphere, styblinski, weighted_sphere)
 
 
 def optimize(dimension, num_population, max_visit, f, C):
@@ -62,7 +64,7 @@ def optimize(dimension, num_population, max_visit, f, C):
             best_pos2.append(xs[idx][1])
     v += adjust
     min_idx = np.where(v == np.min(v))[0][0]
-    
+
     return xs[min_idx], v[min_idx], (pos1, pos2, best_pos1, best_pos2)
 
 
@@ -77,11 +79,12 @@ def main():
     max_visit = 5
     for f in bench_funcs:
         print(f.name, "minimum =", f.opt)
-        position, best, logs = optimize(dimension, num_population, max_visit, f, max_iter)
+        position, best, logs = optimize(
+            dimension, num_population, max_visit, f, max_iter)
         print("minimum is", best)
         print("position is", *position)
         f.plot(*logs)
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main()
