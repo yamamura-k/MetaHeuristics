@@ -18,6 +18,14 @@ class Function():
     def __call__(self, x):
         raise NotImplementedError
 
+    def _projection(self, x):
+        L = np.where(x < self.boundaries[0])[0]
+        for i in L:
+            x[i] = self.boundaries[0]
+        U = np.where(x > self.boundaries[1])[0]
+        for i in U:
+            x[i] = self.boundaries[1]
+
     def plot(self, pos1, pos2, best_pos1, best_pos2, save_dir="./images"):
         fig = plt.figure()
         boundaries = list(self.boundaries)
@@ -60,6 +68,7 @@ class ackley(Function):
         self.boundaries = np.array([-32.768, 32.768])
 
     def __call__(self, x):
+        self._projection(x)
         t1 = 20
         t2 = - 20 * np.exp(- 0.2 * np.sqrt(1.0 / len(x) * np.sum(x ** 2)))
         t3 = np.e
@@ -75,6 +84,7 @@ class sphere(Function):
         self.boundaries = np.array([-100, 100])
 
     def __call__(self, x):
+        self._projection(x)
         return np.sum(x ** 2)
 
 
@@ -86,6 +96,7 @@ class rosenbrock(Function):
         self.boundaries = np.array([-5, 5])
 
     def __call__(self, x):
+        self._projection(x)
         val = 0
         for i in range(0, len(x) - 1):
             t1 = 100 * (x[i + 1] - x[i] ** 2) ** 2
@@ -98,10 +109,12 @@ class styblinski(Function):
     def __init__(self):
         super().__init__()
         self.name = "Styblinski-Tang"
+        # approximate optimal value is self.opt * number of variables
         self.opt = -39.166165
         self.boundaries = np.array([-5, 4])
 
     def __call__(self, x):
+        self._projection(x)
         t1 = np.sum(x ** 4)
         t2 = - 16 * np.sum(x ** 2)
         t3 = 5 * np.sum(x)
@@ -116,6 +129,7 @@ class k_tablet(Function):
         self.boundaries = np.array([-5.12, 5.12])
 
     def __call__(self, x):
+        self._projection(x)
         k = int(np.ceil(len(x) / 4.0))
         t1 = np.sum(x[:k] ** 2)
         t2 = 100 ** 2 * np.sum(x[k:] ** 2)
@@ -130,6 +144,7 @@ class weighted_sphere(Function):
         self.boundaries = np.array([-5.12, 5.12])
 
     def __call__(self, x):
+        self._projection(x)
         val = np.array([(i + 1) * xi ** 2 for i, xi in enumerate(x)])
         return np.sum(val)
 
@@ -142,6 +157,7 @@ class different_power(Function):
         self.boundaries = np.array([-1, 1])
 
     def __call__(self, x):
+        self._projection(x)
         val = 0
         for i, v in enumerate(x):
             val += np.abs(v) ** (i + 2)
@@ -156,6 +172,7 @@ class griewank(Function):
         self.boundaries = np.array([-600, 600])
 
     def __call__(self, x):
+        self._projection(x)
         w = np.array([1.0 / np.sqrt(i + 1) for i in range(len(x))])
         t1 = 1
         t2 = 1.0 / 4000.0 * np.sum(x ** 2)
