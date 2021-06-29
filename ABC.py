@@ -91,7 +91,7 @@ def main():
             dimension, num_population, max_visit, f, max_iter)
         print("minimum is", best)
         print("position is", *position)
-        f.plot(*logs)
+        f.plot(*logs, algo_name="ABC")
 
 
 if __name__ == '__main__':
