@@ -50,11 +50,13 @@ def optimize(dimension, num_population, max_visit, f, C):
 
             # onlooker bees
             if (v >= 0).all():
-                probs = v/np.sum(v)
+                probs = v / np.sum(v)
             else:
                 m = np.min(v)
                 w = v - m
                 probs = w / np.sum(w)
+            probs = 1 - probs
+            probs /= np.sum(probs)
             i = np.random.choice(all_candidates, p=probs)
             update(i)
 
@@ -80,16 +82,16 @@ def main():
         weighted_sphere(), different_power(), griewank()]
 
     dimension = 2
-    num_population = 50
-    max_iter = 100
+    num_population = 15
+    max_iter = 30
     max_visit = 5
-    for f in bench_funcs[3:4]:
+    for f in bench_funcs:
         print(f.name, "minimum =", f.opt)
         position, best, logs = optimize(
             dimension, num_population, max_visit, f, max_iter)
         print("minimum is", best)
         print("position is", *position)
-        f.plot(*logs)
+        f.plot(*logs, algo_name="ABC")
 
 
 if __name__ == '__main__':
