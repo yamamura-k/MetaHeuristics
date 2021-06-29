@@ -26,7 +26,7 @@ class Function():
         for i in U:
             x[i] = self.boundaries[1]
 
-    def plot(self, pos1, pos2, best_pos1, best_pos2, save_dir="./images"):
+    def plot(self, pos1, pos2, best_pos1, best_pos2, save_dir="./images", algo_name="tmp"):
         fig = plt.figure()
         boundaries = list(self.boundaries)
         func_y = []
@@ -57,7 +57,7 @@ class Function():
 
         ani = animation.FuncAnimation(fig, plot, len(pos1), interval=200)
         os.makedirs(save_dir, exist_ok=True)
-        ani.save(f"{save_dir}/{self.name}_tmp.gif", writer="pillow")
+        ani.save(f"{save_dir}/{self.name}_{algo_name}.gif", writer="pillow")
 
 
 class ackley(Function):
