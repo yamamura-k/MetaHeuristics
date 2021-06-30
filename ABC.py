@@ -11,20 +11,20 @@ from benchmarks import (ackley, different_power, griewank, k_tablet,
 
 def optimize(dimension, num_population, max_visit, f, C):
     # step1 : initialization
-    xs = np.random.random((num_population, dimension))
+    x = np.random.uniform(*f.boundaries, size=(num_population, dimension))
     all_candidates = np.arange(num_population)
-    v = np.array([f(x) for x in xs])
+    v = np.array([f(t) for t in x])
     cnt = np.zeros(num_population)
 
     def update(i):
-        x_i = xs[i].copy()
+        x_i = x[i].copy()
         j = np.random.randint(0, dimension-1)
         k = np.random.randint(0, num_population-1)
         phi = np.random.normal()
-        x_i[j] -= phi*(x_i[j] - xs[k][j])
+        x_i[j] -= phi*(x_i[j] - x[k][j])
         v_new = f(x_i)
         if v_new <= v[i]:
-            xs[i] = x_i
+            x[i] = x_i
             v[i] = v_new
         cnt[i] += 1
 
@@ -34,7 +34,7 @@ def optimize(dimension, num_population, max_visit, f, C):
             x_i = np.random.random(dimension)
             v_new = f(x_i)
             if v_new <= v[i]:
-                xs[i] = x_i
+                x[i] = x_i
                 v[i] = v_new
                 cnt[i] = 1
     pos1 = []
@@ -64,16 +64,16 @@ def optimize(dimension, num_population, max_visit, f, C):
             random_update()
 
         m = np.min(v)
-        pos1.append([x[0] for x in xs])
-        pos2.append([x[1] for x in xs])
+        pos1.append([x[0] for x in x])
+        pos2.append([x[1] for x in x])
         best_pos = np.where(v == m)[0]
         for idx in best_pos:
-            best_pos1.append(xs[idx][0])
-            best_pos2.append(xs[idx][1])
+            best_pos1.append(x[idx][0])
+            best_pos2.append(x[idx][1])
 
     min_idx = np.where(v == np.min(v))[0][0]
 
-    return xs[min_idx], v[min_idx], (pos1, pos2, best_pos1, best_pos2)
+    return x[min_idx], v[min_idx], (pos1, pos2, best_pos1, best_pos2)
 
 
 def main():
