@@ -9,11 +9,12 @@ from benchmarks import (ackley, different_power, griewank, k_tablet,
                         rosenbrock, sphere, styblinski, weighted_sphere)
 
 
-def optimize(dimension, num_population, max_visit, f, C):
+def optimize(dimension, num_population, max_visit, objective, C):
     # step1 : initialization
-    x = np.random.uniform(*f.boundaries, size=(num_population, dimension))
+    x = np.random.uniform(*objective.boundaries,
+                          size=(num_population, dimension))
     all_candidates = np.arange(num_population)
-    v = np.array([f(t) for t in x])
+    v = np.array([objective(t) for t in x])
     cnt = np.zeros(num_population)
 
     def update(i):
@@ -22,7 +23,7 @@ def optimize(dimension, num_population, max_visit, f, C):
         k = np.random.randint(0, num_population-1)
         phi = np.random.normal()
         x_i[j] -= phi*(x_i[j] - x[k][j])
-        v_new = f(x_i)
+        v_new = objective(x_i)
         if v_new <= v[i]:
             x[i] = x_i
             v[i] = v_new
@@ -32,7 +33,7 @@ def optimize(dimension, num_population, max_visit, f, C):
         candidate = np.where(cnt == max_visit)[0]
         for i in candidate:
             x_i = np.random.random(dimension)
-            v_new = f(x_i)
+            v_new = objective(x_i)
             if v_new <= v[i]:
                 x[i] = x_i
                 v[i] = v_new

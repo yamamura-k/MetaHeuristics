@@ -22,7 +22,7 @@ def update(i):
     k = np.random.randint(0, num_population-1)
     phi = np.random.normal()
     x_i[j] -= phi*(x_i[j] - x[k*dimension + j])
-    v_new = f(x_i)
+    v_new = objective(x_i)
     if v_new <= v_share[i]:
         value_to_numpy(x_share)[
             i*dimension:(i+1)*dimension] = x_i
@@ -31,7 +31,7 @@ def update(i):
 
 def random_update(i):
     x_i = np.random.uniform(*f.boundaries, size=dimension)
-    v_new = f(x_i)
+    v_new = objective(x_i)
     if v_new <= v_share[i]:
         value_to_numpy(x_share)[
             i*dimension:(i+1)*dimension] = x_i
@@ -39,14 +39,14 @@ def random_update(i):
         cnt_share[i] = 1
 
 
-def init(_x, _v, _cnt, x_share_, v_share_, cnt_share_, _f):
+def init(_x, _v, _cnt, x_share_, v_share_, cnt_share_, _objective):
     global x_share
     global v_share
     global cnt_share
     global cnt
     global x
     global v
-    global f
+    global objective
     global dimension
     global num_population
     product = _x.shape[0]
@@ -54,20 +54,22 @@ def init(_x, _v, _cnt, x_share_, v_share_, cnt_share_, _f):
     dimension = product // num_population
     x = _x
     v = _v
-    f = _f
+    objective = _objective
     cnt = _cnt
     x_share = x_share_
     v_share = v_share_
     cnt_share = cnt_share_
 
 
-def optimize(dimension, num_population, max_visit, f, C, num_cpu=None):
+def optimize(dimension, num_population, max_visit, objective, C, num_cpu=None):
 
     if num_cpu is None:
         num_cpu = os.cpu_count()
+    best_obj = float('inf')
+    best_x = None
     # step1 : initialization
-    x = np.random.uniform(*f.boundaries, size=num_population*dimension)
-    v = np.array([f(x[i*dimension:(i+1)*dimension])
+    x = np.random.uniform(*objective.boundaries, size=num_population*dimension)
+    v = np.array([objective(x[i*dimension:(i+1)*dimension])
                  for i in range(num_population)])
     all_candidates = list(range(num_population))
     cnt = np.zeros(num_population)
@@ -80,7 +82,7 @@ def optimize(dimension, num_population, max_visit, f, C, num_cpu=None):
     best_pos1 = []
     best_pos2 = []
 
-    with Pool(num_cpu, initializer=init, initargs=(x, v, cnt, x_share, v_share, cnt_share, f)) as p:
+    with Pool(num_cpu, initializer=init, initargs=(x, v, cnt, x_share, v_share, cnt_share, objective)) as p:
         for c in range(1, C+1):
             # employed bees
             # result = p.map_async(update, all_candidates)
@@ -119,12 +121,14 @@ def optimize(dimension, num_population, max_visit, f, C, num_cpu=None):
             pos2.append([t[1] for t in pos])
             best_pos = np.where(v == m)[0]
             for best_idx in best_pos:
-                best_x = x[best_idx*dimension:(best_idx+1)*dimension]
-                best_pos1.append(best_x[0])
-                best_pos2.append(best_x[1])
+                best_x_ = x[best_idx*dimension:(best_idx+1)*dimension]
+                best_pos1.append(best_x_[0])
+                best_pos2.append(best_x_[1])
+            if m < best_obj:
+                best_obj = m
+                best_x = best_x_.copy()
 
-    min_idx = np.where(v == np.min(v))[0][0]
-    return x[min_idx*dimension:(min_idx+1)*dimension], v[min_idx], (pos1, pos2, best_pos1, best_pos2)
+    return best_x, best_obj, (pos1, pos2, best_pos1, best_pos2)
 
 
 def main():
