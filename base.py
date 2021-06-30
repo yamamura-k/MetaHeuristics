@@ -54,3 +54,5 @@ class Function():
         ani = animation.FuncAnimation(fig, plot, len(pos1), interval=200)
         os.makedirs(save_dir, exist_ok=True)
         ani.save(f"{save_dir}/{self.name}_{algo_name}.gif", writer="pillow")
+        plt.clf()
+        plt.close()
