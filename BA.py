@@ -6,7 +6,8 @@ from benchmarks import (ackley, different_power, griewank, k_tablet,
 
 def optimize(dimension, num_populatioin, objective, max_iter, f_min=0,
              f_max=100, selection_max=10, alpha=0.9, gamma=0.9):
-    x = np.random.random((num_populatioin, dimension))
+    x = np.random.uniform(*objective.boundaries,
+                          size=(num_populatioin, dimension))
     v = np.random.random((num_populatioin, dimension))
     f = np.random.uniform(f_min, f_max, size=num_populatioin)
     A = np.random.uniform(1, 2, size=num_populatioin)
@@ -41,7 +42,7 @@ def optimize(dimension, num_populatioin, objective, max_iter, f_min=0,
                 x_new += eps * np.average(A)
                 obj_new = objective(x_new)
 
-            x_random = np.random.random(dimension)
+            x_random = np.random.uniform(*objective.boundaries, size=dimension)
             obj_random = objective(x_random)
             if (obj_new is None or obj_t > obj_new) and obj_t > obj_random:
                 if obj_new is None or obj_new <= obj_random:
@@ -80,8 +81,8 @@ def main():
         weighted_sphere(), different_power(), griewank()]
 
     dimension = 2
-    num_population = 50
-    max_iter = 100
+    num_population = 15
+    max_iter = 30
     for f in bench_funcs:
         print(f.name, "minimum =", f.opt)
         position, best, logs = optimize(
