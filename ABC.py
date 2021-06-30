@@ -6,7 +6,7 @@ Reference : https://link.springer.com/content/pdf/10.1007/s10898-007-9149-x.pdf
 import numpy as np
 
 
-def optimize(dimension, num_population, max_visit, objective, C):
+def optimize(dimension, num_population, objective, max_iter, max_visit=10):
     # step1 : initialization
     x = np.random.uniform(*objective.boundaries,
                           size=(num_population, dimension))
@@ -40,7 +40,7 @@ def optimize(dimension, num_population, max_visit, objective, C):
     best_pos1 = []
     best_pos2 = []
 
-    for c in range(1, C+1):
+    for c in range(1, max_iter+1):
         for _ in range(num_population):
             # employed bees
             i = np.random.randint(0, num_population-1)

@@ -5,7 +5,6 @@ Reference : https://link.springer.com/content/pdf/10.1007/s10898-007-9149-x.pdf
 """
 
 import ctypes
-import os
 from multiprocessing import Pool
 
 import numpy as np
@@ -59,10 +58,8 @@ def init(_x, _v, _cnt, x_share_, v_share_, cnt_share_, _objective):
     cnt_share = cnt_share_
 
 
-def optimize(dimension, num_population, max_visit, objective, C, num_cpu=None):
-
-    if num_cpu is None:
-        num_cpu = os.cpu_count()
+def optimize(dimension, num_population, objective,
+             max_iter, max_visit=10, num_cpu=None):
     best_obj = float('inf')
     best_x = None
     # step1 : initialization
@@ -80,8 +77,11 @@ def optimize(dimension, num_population, max_visit, objective, C, num_cpu=None):
     best_pos1 = []
     best_pos2 = []
 
-    with Pool(num_cpu, initializer=init, initargs=(x, v, cnt, x_share, v_share, cnt_share, objective)) as p:
-        for c in range(1, C+1):
+    with Pool(num_cpu, initializer=init,
+              initargs=(x, v, cnt, x_share,
+                        v_share, cnt_share, objective)) as p:
+
+        for c in range(1, max_iter+1):
             # employed bees
             # result = p.map_async(update, all_candidates)
             p.map(update, all_candidates)
