@@ -4,6 +4,7 @@ Python and C++ implementation of several metaheuristic algorithms.
 
 ## Component
 
+```bash
 ├── README.md
 ├── ABC.py
 ├── paraABC.py
@@ -18,6 +19,7 @@ Python and C++ implementation of several metaheuristic algorithms.
      ├── ABC.cpp
      ├── CMakeLists.txt
      └── main.cpp
+```
 
 ### Main algorithms
 
