@@ -19,9 +19,10 @@ def main():
         for f in bench_funcs:
             position, best, logs = algo.optimize(
                 dimension, num_population, f, max_iter)
-            print(f.name, "opt - best =", f.opt - best)
+            print("\n", f.name)
+            print("| opt - best | =", abs(f.opt - best))
             print("position is", *position)
-            f.plot(*logs, algo_name="BA")
+            f.plot(*logs, algo_name=algo.__name__)
 
 
 if __name__ == '__main__':
