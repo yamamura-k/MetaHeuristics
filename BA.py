@@ -1,8 +1,5 @@
 import numpy as np
 
-from benchmarks import (ackley, different_power, griewank, k_tablet,
-                        rosenbrock, sphere, styblinski, weighted_sphere)
-
 
 def optimize(dimension, num_populatioin, objective, max_iter, f_min=0,
              f_max=100, selection_max=10, alpha=0.9, gamma=0.9):
@@ -73,24 +70,3 @@ def optimize(dimension, num_populatioin, objective, max_iter, f_min=0,
         best_pos2.append(best_x[1])
 
     return best_x, obj_best, (pos1, pos2, best_pos1, best_pos2)
-
-
-def main():
-    bench_funcs = [
-        ackley(), sphere(), rosenbrock(), styblinski(), k_tablet(),
-        weighted_sphere(), different_power(), griewank()]
-
-    dimension = 2
-    num_population = 15
-    max_iter = 30
-    for f in bench_funcs:
-        print(f.name, "minimum =", f.opt)
-        position, best, logs = optimize(
-            dimension, num_population, f, max_iter)
-        print("minimum is", best)
-        print("position is", *position)
-        f.plot(*logs, algo_name="BA")
-
-
-if __name__ == '__main__':
-    main()

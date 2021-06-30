@@ -10,8 +10,6 @@ from multiprocessing import Pool
 
 import numpy as np
 
-from benchmarks import (ackley, different_power, griewank, k_tablet,
-                        rosenbrock, sphere, styblinski, weighted_sphere)
 from utils import numpy_to_value, value_to_numpy, value_to_numpy2
 
 
@@ -30,7 +28,7 @@ def update(i):
 
 
 def random_update(i):
-    x_i = np.random.uniform(*f.boundaries, size=dimension)
+    x_i = np.random.uniform(*objective.boundaries, size=dimension)
     v_new = objective(x_i)
     if v_new <= v_share[i]:
         value_to_numpy(x_share)[
@@ -129,25 +127,3 @@ def optimize(dimension, num_population, max_visit, objective, C, num_cpu=None):
                 best_x = best_x_.copy()
 
     return best_x, best_obj, (pos1, pos2, best_pos1, best_pos2)
-
-
-def main():
-    bench_funcs = [
-        ackley(), sphere(), rosenbrock(), styblinski(), k_tablet(),
-        weighted_sphere(), different_power(), griewank()]
-
-    dimension = 2
-    num_population = 15
-    max_iter = 30
-    max_visit = 5
-    for f in bench_funcs:
-        print(f.name, "minimum =", f.opt)
-        position, best, logs = optimize(
-            dimension, num_population, max_visit, f, max_iter, 2)
-        print("minimum is", best)
-        print("position is", *position)
-        f.plot(*logs, algo_name="paraABC")
-
-
-if __name__ == '__main__':
-    main()
