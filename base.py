@@ -22,7 +22,8 @@ class Function():
         for i in U:
             x[i] = self.boundaries[1]
 
-    def plot(self, pos1, pos2, best_pos1, best_pos2, save_dir="./images", algo_name="tmp"):
+    def plot(self, pos1, pos2, best_pos1, best_pos2,
+             save_dir="./images", algo_name="tmp"):
         fig = plt.figure()
         boundaries = list(self.boundaries)
         func_y = []
