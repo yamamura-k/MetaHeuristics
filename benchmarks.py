@@ -30,7 +30,7 @@ class pow(Function):
 
 class log_exp(Function):
     def __init__(self, A=None, n=10, m=100):
-        super.__init__()
+        super().__init__()
         if A is None:
             self.A = gen_matrix(n, m)
         else:

@@ -12,7 +12,7 @@ def value_to_numpy2(v):
     return np.array([v[i] for i in range(len(v))])
 
 
-def gen_matrix(self, n, m):
+def gen_matrix(n, m):
     return np.random.randn(m, n)
 
 
