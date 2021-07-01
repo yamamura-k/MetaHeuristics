@@ -59,4 +59,5 @@ Reference : https://qiita.com/tomitomi3/items/d4318bf7afbc1c835dda (Japanese)
 
 ## References
 
-Update Later
+- [A New Metaheuristic Bat-Inspired Algorithm](https://arxiv.org/pdf/1004.4170.pdf)
+- [https://link.springer.com/content/pdf/10.1007/s10898-007-9149-x.pdf](https://link.springer.com/content/pdf/10.1007/s10898-007-9149-x.pdf)
