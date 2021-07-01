@@ -1,6 +1,7 @@
 import numpy as np
 
 from base import Function
+from utils import gen_matrix
 
 """
 Reference : https://qiita.com/nabenabe0928/items/08ed6495853c3dd08f1e
@@ -16,11 +17,47 @@ class pow(Function):
 
     def __call__(self, x):
         self._projection(x)
-        return x*x
+        return x.T@x
 
     def grad(self, x):
         self._projection(x)
         return 2*x
+
+    def hesse(self, x):
+        self._projection(x)
+        return 2*np.identity(x.shape[0])
+
+
+class log_exp(Function):
+    def __init__(self, A=None, n=10, m=100):
+        super.__init__()
+        if A is None:
+            self.A = gen_matrix(n, m)
+        else:
+            self.A = A
+
+    def __call__(self, x):
+        return np.float(np.log(sum(np.exp(a@x + 1) for a in self.A)))
+
+    def grad(self, x):
+        M = sum(np.exp(a@x + 1) for a in self.A)
+        _nabla = np.array([sum(a[i]*np.exp(a@x + 1)
+                          for a in self.A)/M for i in range(len(x))])
+        return _nabla.reshape(len(_nabla), 1)
+
+    def hesse(self, x, grad=None):
+        if grad is None:
+            nabla = self.grad(x)
+        else:
+            nabla = grad
+        _, n = self.A.shape
+        H = np.zeros((n, n))
+        M = sum(np.exp(a@x + 1) for a in self.A)
+        for i in range(n):
+            for j in range(n):
+                H[i][j] = nabla[i]*nabla[j] + \
+                    sum(a[i]*a[j]*np.exp(a@x + 1)for a in self.A)/M
+        return H
 
 
 class ackley(Function):

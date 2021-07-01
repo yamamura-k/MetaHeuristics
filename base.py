@@ -34,6 +34,9 @@ class Function():
     def grad(self, x):
         raise NotImplementedError
 
+    def hesse(self, x):
+        raise NotImplementedError
+
     def _projection(self, x):
         L = np.where(x < self.boundaries[0])[0]
         for i in L:

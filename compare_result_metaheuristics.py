@@ -33,7 +33,7 @@ def main():
             etime = time.time()
             result = f"| {f.name:55} | {f.opt:12.2f} | {best:12.2f} | {etime-stime:8.3f} | {algo.__name__:9} |\n"
             results.append(result)
-            # f.plot(*logs, algo_name=algo.__name__)
+            f.plot(*logs, algo_name=algo.__name__)
     results.sort(key=lambda x: x[2])
     print(algo.__name__, "finish!")
 
