@@ -4,6 +4,7 @@ Python and C++ implementation of several metaheuristic algorithms.
 
 ## Component
 
+```bash
 ├── README.md
 ├── ABC.py
 ├── paraABC.py
@@ -18,6 +19,7 @@ Python and C++ implementation of several metaheuristic algorithms.
      ├── ABC.cpp
      ├── CMakeLists.txt
      └── main.cpp
+```
 
 ### Main algorithms
 
@@ -57,4 +59,7 @@ Reference : https://qiita.com/tomitomi3/items/d4318bf7afbc1c835dda (Japanese)
 
 ## References
 
-Update Later
+- [A New Metaheuristic Bat-Inspired Algorithm](https://arxiv.org/pdf/1004.4170.pdf)
+- [A powerful and efficient algorithm for numerical
+function optimization: artificial bee colony (ABC)
+algorithm](https://link.springer.com/content/pdf/10.1007/s10898-007-9149-x.pdf)
