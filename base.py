@@ -4,14 +4,37 @@ import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
 
+INF = 1 << 63
+
 
 class Function():
     def __init__(self):
         self.name = None
         self.opt = None
-        self.boundaries = None
+        self.__boundaries = None
 
     def __call__(self, x):
+        raise NotImplementedError
+
+    @property
+    def boundaries(self):
+        pass
+
+    @boundaries.getter
+    def boundaries(self):
+        if self.__boundaries is None:
+            return [-INF, INF]
+        else:
+            return self.__boundaries
+
+    @boundaries.setter
+    def boundaries(self, bound):
+        self.__boundaries = bound
+
+    def grad(self, x):
+        raise NotImplementedError
+
+    def hesse(self, x):
         raise NotImplementedError
 
     def _projection(self, x):

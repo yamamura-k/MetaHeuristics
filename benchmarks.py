@@ -1,10 +1,44 @@
 import numpy as np
 
 from base import Function
+from utils import gen_matrix
 
 """
 Reference : https://qiita.com/nabenabe0928/items/08ed6495853c3dd08f1e
 """
+
+
+class log_exp(Function):
+    def __init__(self, A=None, n=10, m=100):
+        super().__init__()
+        if A is None:
+            self.A = gen_matrix(m, n)
+        else:
+            self.A = A
+        self.name = "log(sum(a_i x))"
+
+    def __call__(self, x):
+        return np.float(np.log(sum(np.exp(a.T@x + 1) for a in self.A)))
+
+    def grad(self, x):
+        M = sum(np.exp(a@x + 1) for a in self.A)
+        _nabla = np.array([sum(a[i]*np.exp(a.T@x + 1)
+                          for a in self.A)/M for i in range(len(x))])
+        return _nabla.reshape(len(_nabla), 1)
+
+    def hesse(self, x, grad=None):
+        if grad is None:
+            nabla = self.grad(x)
+        else:
+            nabla = grad
+        _, n = self.A.shape
+        H = np.zeros((n, n))
+        M = sum(np.exp(a.T@x + 1) for a in self.A)
+        for i in range(n):
+            for j in range(n):
+                H[i][j] = nabla[i]*nabla[j] + \
+                    sum(a[i]*a[j]*np.exp(a.T@x + 1)for a in self.A)/M
+        return H.reshape((n, n))
 
 
 class ackley(Function):
@@ -53,11 +87,11 @@ class rosenbrock(Function):
 
 
 class styblinski(Function):
-    def __init__(self):
+    def __init__(self, dimension=1):
         super().__init__()
         self.name = "Styblinski-Tang"
         # approximate optimal value is self.opt * number of variables
-        self.opt = -39.166165
+        self.opt = -39.166165*dimension
         self.boundaries = np.array([-5, 4])
 
     def __call__(self, x):
