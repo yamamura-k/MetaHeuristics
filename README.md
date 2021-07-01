@@ -68,9 +68,9 @@ Reference : https://qiita.com/tomitomi3/items/d4318bf7afbc1c835dda (Japanese)
 ### for test
 | File               | Description                         |
 | ------------------ | ----------------------------------- |
-| test_metaheuristics.py||
-| test_grad_based.py||
-| cpp/main.cpp       | for test                            |
+| test_metaheuristics.py|test metaheuristics|
+| test_grad_based.py|test gradient based algorithms|
+| cpp/main.cpp       | test cpp |
 
 ### Others
 
