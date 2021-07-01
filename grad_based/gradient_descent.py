@@ -1,5 +1,6 @@
 import numpy as np
-from utils import calc_stepsize
+
+from .utils import calc_stepsize
 
 
 def optimize(x, objective, max_iter, alpha=1e-4,

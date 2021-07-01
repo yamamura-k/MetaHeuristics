@@ -1,11 +1,8 @@
 import time
 
-import ABC
-import BA
-import paraABC
-import paraBA
 from benchmarks import (ackley, different_power, griewank, k_tablet,
                         rosenbrock, sphere, styblinski, weighted_sphere)
+from metaheuristics import ABC, BA, paraABC, paraBA
 
 
 def main():

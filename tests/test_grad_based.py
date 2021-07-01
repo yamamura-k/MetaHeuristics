@@ -1,10 +1,7 @@
 import numpy as np
 
-import grad_based.conjugate as CG
-import grad_based.gradient_descent as GD
-import grad_based.nesterov as NV
-import grad_based.newton as NW
 from benchmarks import log_exp
+from grad_based import CG, GD, NV, NW
 
 n, m = 10, 100
 func = log_exp(n=n, m=m)

@@ -4,6 +4,11 @@ import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
 
+
+def gen_matrix(m, n):
+    return np.random.randn(m, n)
+
+
 INF = 1 << 63
 
 

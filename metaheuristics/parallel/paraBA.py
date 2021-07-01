@@ -9,7 +9,7 @@ from multiprocessing import Pool
 
 import numpy as np
 
-from utils import numpy_to_value, value_to_numpy
+from .utils import numpy_to_value, value_to_numpy
 
 
 def step(i, t):
