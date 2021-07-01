@@ -7,6 +7,22 @@ Reference : https://qiita.com/nabenabe0928/items/08ed6495853c3dd08f1e
 """
 
 
+class pow(Function):
+    def __init__(self):
+        super().__init__()
+        self.name = "Power"
+        self.opt = 0
+        self.boundaries = np.array([-10, 10])
+
+    def __call__(self, x):
+        self._projection(x)
+        return x*x
+
+    def grad(self, x):
+        self._projection(x)
+        return 2*x
+
+
 class ackley(Function):
     def __init__(self):
         super().__init__()
@@ -53,11 +69,11 @@ class rosenbrock(Function):
 
 
 class styblinski(Function):
-    def __init__(self):
+    def __init__(self, dimension=1):
         super().__init__()
         self.name = "Styblinski-Tang"
         # approximate optimal value is self.opt * number of variables
-        self.opt = -39.166165
+        self.opt = -39.166165*dimension
         self.boundaries = np.array([-5, 4])
 
     def __call__(self, x):
