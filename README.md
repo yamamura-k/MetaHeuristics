@@ -6,31 +6,48 @@ Python and C++ implementation of several metaheuristic algorithms.
 
 ```bash
 ├── README.md
+├── requrements.txt
 ├── ABC.py
 ├── paraABC.py
 ├── BA.py
 ├── paraBA.py
-├── grad_based/
-├── base.py
+├── grad_based
+│   ├── gradient_descent.py
+│   ├── newton.py
+│   ├── nesterov.py
+│   └── conjugate.py
+├── cpp
+│   ├── CMakeLists.txt
+│   ├── ABC.cpp
+│   └── main.cpp
 ├── benchmarks.py
-├── test.py 
+├── base.py
 ├── utils.py
-└──cpp
-     ├── ABC.cpp
-     ├── CMakeLists.txt
-     └── main.cpp
+├── test_metaheuristics.py
+├── test_grad_based.py
+├── compare_result_metaheuristics.py
+└──compare_result_grad_based.py
 ```
 
 ### Main algorithms
 
+#### Metaheuristics
 | File        | Description                                                  |
 | ----------- | ------------------------------------------------------------ |
 | ABC.py      | Implementation of sequential Artificial Bee Colony algorithm |
 | paraABC.py  | Implementation of parallel Artificial Bee Colony algorithm   |
-| BA.py       | Implementation of sequential Bat Algorithm                   |
-| paraBA.py   | Implementation of parallel Bat Algorithm                     |
+| BA.py       | Implementation of sequential Bat algorithm                   |
+| paraBA.py   | Implementation of parallel Bat algorithm                     |
 | cpp/ABC.cpp | Implementation of sequential Artificial Bee Colony algorithm |
-| grad_based/ | gradient based algorithms (Not implemented)                  |
+
+#### gradient based algorithms
+| File        | Description                                                  |
+| ----------- | ------------------------------------------------------------ |
+| gradient_descent.py      | Implementation of gradient descent algorithm |
+| newton.py  | Implementation of newton algorithm   |
+| nesterov.py       | Implementation of nesterov algorithm                   |
+| conjugate.py   | Implementation of conjugate gradient algorithm                     |
+
 
 ### Benchmark functions
 
@@ -48,14 +65,22 @@ Reference : https://qiita.com/tomitomi3/items/d4318bf7afbc1c835dda (Japanese)
 | Sum of different power function | Unimodal function. Absolute value is used.        |
 | Griewank function               | Multimodal function. This has so many local opts. |
 
+### for test
+| File               | Description                         |
+| ------------------ | ----------------------------------- |
+| test_metaheuristics.py||
+| test_grad_based.py||
+| cpp/main.cpp       | for test                            |
+
 ### Others
 
 | File               | Description                         |
 | ------------------ | ----------------------------------- |
 | utils.py           | Utility functions for parallization |
-| test.py            | for test                            |
-| cpp/main.cpp       | for test                            |
+|compare_result_metaheuristics.py| Example |
+|compare_result_grad_based.py|Example|
 | cpp/CMakeLists.txt | For cmake                           |
+
 
 ## References
 
