@@ -5,7 +5,7 @@ from utils import calc_stepsize
 def optimize(x, objective, max_iter, alpha=1e-4,
              method="static", *args, **kwargs):
     try:
-        objective.grad(np.zeros(2))
+        objective.grad(x)
     except NotImplementedError:
         raise AttributeError(
             f"Gradient of {objective.__name__} is not defined.")

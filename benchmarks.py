@@ -8,40 +8,21 @@ Reference : https://qiita.com/nabenabe0928/items/08ed6495853c3dd08f1e
 """
 
 
-class pow(Function):
-    def __init__(self):
-        super().__init__()
-        self.name = "Power"
-        self.opt = 0
-        self.boundaries = np.array([-10, 10])
-
-    def __call__(self, x):
-        self._projection(x)
-        return x.T@x
-
-    def grad(self, x):
-        self._projection(x)
-        return 2*x
-
-    def hesse(self, x):
-        self._projection(x)
-        return 2*np.identity(x.shape[0])
-
-
 class log_exp(Function):
     def __init__(self, A=None, n=10, m=100):
         super().__init__()
         if A is None:
-            self.A = gen_matrix(n, m)
+            self.A = gen_matrix(m, n)
         else:
             self.A = A
+        self.name = "log(sum(a_i x))"
 
     def __call__(self, x):
-        return np.float(np.log(sum(np.exp(a@x + 1) for a in self.A)))
+        return np.float(np.log(sum(np.exp(a.T@x + 1) for a in self.A)))
 
     def grad(self, x):
         M = sum(np.exp(a@x + 1) for a in self.A)
-        _nabla = np.array([sum(a[i]*np.exp(a@x + 1)
+        _nabla = np.array([sum(a[i]*np.exp(a.T@x + 1)
                           for a in self.A)/M for i in range(len(x))])
         return _nabla.reshape(len(_nabla), 1)
 
@@ -52,12 +33,12 @@ class log_exp(Function):
             nabla = grad
         _, n = self.A.shape
         H = np.zeros((n, n))
-        M = sum(np.exp(a@x + 1) for a in self.A)
+        M = sum(np.exp(a.T@x + 1) for a in self.A)
         for i in range(n):
             for j in range(n):
                 H[i][j] = nabla[i]*nabla[j] + \
-                    sum(a[i]*a[j]*np.exp(a@x + 1)for a in self.A)/M
-        return H
+                    sum(a[i]*a[j]*np.exp(a.T@x + 1)for a in self.A)/M
+        return H.reshape((n, n))
 
 
 class ackley(Function):

@@ -8,7 +8,7 @@ from benchmarks import log_exp
 
 n, m = 10, 100
 func = log_exp(n=n, m=m)
-x = np.random.randn(n)
+x = np.random.randn(n, 1)
 max_iter = 100
 
 

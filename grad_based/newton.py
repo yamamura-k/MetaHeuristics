@@ -3,12 +3,12 @@ import numpy as np
 
 def optimize(x, objective, eps=1e-20, *args, **kwargs):
     try:
-        objective.grad(np.zeros(2))
+        objective.grad(x)
     except NotImplementedError:
         raise AttributeError(
             f"Gradient of {objective.__name__} is not defined.")
     try:
-        objective.hesse(np.zeros(2))
+        objective.hesse(x)
     except NotImplementedError:
         raise AttributeError(
             f"Hesse matrix of {objective.__name__} is not defined.")

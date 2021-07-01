@@ -10,15 +10,15 @@ from scipy.optimize import minimize_scalar
 
 def calc_beta(method, d, d_prev, s):
     if method == "fletcher-reeves":
-        return d.T@d / d_prev.T@d_prev
+        return np.float(d.T@d / d_prev.T@d_prev)
     elif method == "polak–ribiere":
-        return d.T@(d-d_prev) / d_prev.T@d_prev
+        return np.float().T@(d-d_prev) / d_prev.T@d_prev
     elif method == "hestenes-stiefel":
-        return -d.T@(d-d_prev) / s.T@(d-d_prev)
+        return np.float(-d.T@(d-d_prev) / s.T@(d-d_prev))
     elif method == "dai–yuan":
-        return -d.T@d / s.T@(d-d_prev)
+        return np.float(-d.T@d / s.T@(d-d_prev))
     elif method == "heuristic":
-        return max(0, d.T@(d-d_prev) / d_prev.T@d_prev)
+        return max(0, np.float(d.T@(d-d_prev) / d_prev.T@d_prev))
     else:
         raise NotImplementedError
 
@@ -31,7 +31,7 @@ def lin_search(x, objective, s):
 
 def optimize(x, objective, max_iter, method="fletcher-reeves", *args, **kwargs):
     try:
-        objective.grad(np.zeros(2))
+        objective.grad(x)
     except NotImplementedError:
         raise AttributeError(
             f"Gradient of {objective.__name__} is not defined.")
