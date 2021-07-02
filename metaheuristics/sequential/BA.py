@@ -28,14 +28,13 @@ def optimize(dimension, num_population, objective, max_iter, f_min=0,
     best_pos2 = []
 
     for step in range(max_iter):
-
-        obj_current = np.array(list(map(objective, x)))
+        obj_current = np.array([objective(t) for t in x])
         f = f_min + (f_max - f_min) * \
             np.broadcast_to(np.random.uniform(
                 0, 1, size=num_population), (dimension, num_population)).T
         v += (x - np.broadcast_to(best_x, x.shape)) * f
         x_t = x + v
-        obj_t = np.array(list(map(objective, x_t)))
+        obj_t = np.array([objective(t) for t in x_t])
         obj_new = np.zeros(num_population) + INF
 
         idxs = np.where(np.random.rand(*r.shape) > r)
@@ -44,10 +43,10 @@ def optimize(dimension, num_population, objective, max_iter, f_min=0,
         eps = np.broadcast_to(
             np.random.uniform(-1, 1, size=(len(idxs[0]),)), (dimension, len(idxs[0]))).T
         x_new[idxs] = x[idx] + eps*np.average(A)
-        obj_new[idxs] = np.array(list(map(objective, x_new[idxs])))
+        obj_new[idxs] = np.array([objective(x_new[t]) for t in idxs[0]])
 
         x_random = randomize((num_population, dimension), objective)
-        obj_random = np.array(list(map(objective, x_random)))
+        obj_random = np.array([objective(t) for t in x_random])
 
         ((obj_new == INF) | (obj_t > obj_new)) & (
             obj_t > obj_random) & (obj_random > obj_new)
