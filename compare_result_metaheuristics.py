@@ -2,12 +2,12 @@ import time
 
 from benchmarks import (ackley, different_power, griewank, k_tablet,
                         rosenbrock, sphere, styblinski, weighted_sphere)
-from metaheuristics import ABC, BA
+from metaheuristics import ABC, BA, GWO, paraABC
 
 
 def main():
-    dimension = 12
-    num_population = 100
+    dimension = 2
+    num_population = 1000
     max_iter = 20
     sep = "-"*102+"\n"
     sep_short = "-"*26+"\n"
@@ -19,7 +19,7 @@ def main():
     bench_funcs = [
         ackley(), sphere(), rosenbrock(), styblinski(dimension), k_tablet(),
         weighted_sphere(), different_power(), griewank()]
-    algorithms = [ABC, BA]
+    algorithms = [ABC, BA, GWO, paraABC]
     L = len(bench_funcs)
     AL = len(algorithms)
     for algo in algorithms:
