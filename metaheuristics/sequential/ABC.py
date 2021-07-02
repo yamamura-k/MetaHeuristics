@@ -5,11 +5,12 @@ Reference : https://link.springer.com/content/pdf/10.1007/s10898-007-9149-x.pdf
 """
 import numpy as np
 
+from .utils import randomize
+
 
 def optimize(dimension, num_population, objective, max_iter, max_visit=10):
     # step1 : initialization
-    x = np.random.uniform(*objective.boundaries,
-                          size=(num_population, dimension))
+    x = randomize((num_population, dimension), objective)
     all_candidates = np.arange(num_population)
     v = np.array([objective(t) for t in x])
     cnt = np.zeros(num_population)
@@ -29,7 +30,7 @@ def optimize(dimension, num_population, objective, max_iter, max_visit=10):
     def random_update():
         candidate = np.where(cnt == max_visit)[0]
         for i in candidate:
-            x_i = np.random.random(dimension)
+            x_i = randomize((dimension, ), objective)
             v_new = objective(x_i)
             if v_new <= v[i]:
                 x[i] = x_i
@@ -62,12 +63,11 @@ def optimize(dimension, num_population, objective, max_iter, max_visit=10):
             random_update()
 
         m = np.min(v)
-        pos1.append([x[0] for x in x])
-        pos2.append([x[1] for x in x])
-        best_pos = np.where(v == m)[0]
-        for idx in best_pos:
-            best_pos1.append(x[idx][0])
-            best_pos2.append(x[idx][1])
+        pos1.append(x[:, 0].tolist())
+        pos2.append(x[:, 1].tolist())
+        best_pos = np.where(v == m)
+        best_pos1.append(x[best_pos][0][0])
+        best_pos2.append(x[best_pos][0][1])
 
     min_idx = np.where(v == np.min(v))[0][0]
 
