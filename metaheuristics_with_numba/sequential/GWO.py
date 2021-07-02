@@ -1,8 +1,10 @@
 import numpy as np
+from numba import njit
 
 from .utils import randomize
 
 
+@njit
 def optimize(dimension, num_population, objective, max_iter, top_k=3, *args, **kwargs):
     x = randomize((num_population, dimension), objective)
     lis = list(range(num_population))
@@ -29,7 +31,7 @@ def optimize(dimension, num_population, objective, max_iter, top_k=3, *args, **k
     best_pos1 = []
     best_pos2 = []
 
-    for _ in range(max_iter):
+    for t in range(max_iter):
         prod = C_s*X_s
         tmp = np.array([A_s[i]*np.abs(prod[i] - x)for i in range(top_k)])
         x = np.sum(np.array([X_s[i]-tmp[i]
