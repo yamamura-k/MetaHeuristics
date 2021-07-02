@@ -2,12 +2,12 @@ import time
 
 from benchmarks import (ackley, different_power, griewank, k_tablet,
                         rosenbrock, sphere, styblinski, weighted_sphere)
-from metaheuristics import ABC, BA, paraABC, paraBA
+from metaheuristics import ABC, BA, GWO, paraABC
 
 
 def main():
     dimension = 2
-    num_population = 100
+    num_population = 1000
     max_iter = 20
     sep = "-"*102+"\n"
     sep_short = "-"*26+"\n"
@@ -19,10 +19,13 @@ def main():
     bench_funcs = [
         ackley(), sphere(), rosenbrock(), styblinski(dimension), k_tablet(),
         weighted_sphere(), different_power(), griewank()]
-    algorithms = [ABC, paraABC, BA, paraBA]
-
+    algorithms = [ABC, BA, GWO, paraABC]
+    L = len(bench_funcs)
+    AL = len(algorithms)
     for algo in algorithms:
         print(algo.__name__, "is running ...")
+        times = 0
+        plot_time = 0
         for f in bench_funcs:
             stime = time.time()
             position, best, logs = algo.optimize(
@@ -30,14 +33,17 @@ def main():
             etime = time.time()
             result = f"| {f.name:55} | {f.opt:12.2f} | {best:12.2f} | {etime-stime:8.3f} | {algo.__name__:9} |\n"
             results.append(result)
-            f.plot(*logs, algo_name=algo.__name__)
-    results.sort(key=lambda x: x[2])
-    print(algo.__name__, "finish!")
+            times += etime - stime
+            f.plot(*logs, algo_name=str(dimension)+"."+algo.__name__)
+            plot_time += time.time() - etime
+        print(
+            "finish!", f"total {times:.3f} ms, average {times / L:.3f} ms, plot {plot_time:.3f} ms")
+    results.sort(key=lambda x: x[2:5])
 
     print(header, end="")
     for i, line in enumerate(results):
         print(line, end="")
-        if i % 4 == 3:
+        if i % AL == AL-1:
             print(sep, end="")
 
 

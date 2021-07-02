@@ -1,9 +1,8 @@
 
-import time
 
 from benchmarks import (ackley, different_power, griewank, k_tablet,
                         rosenbrock, sphere, styblinski, weighted_sphere)
-from metaheuristics import ABC, BA, paraABC, paraBA
+from metaheuristics import ABC, BA, GWO, paraABC, paraBA
 
 dimension = 2
 num_population = 100
@@ -17,13 +16,12 @@ def test_ABC():
     for f in bench_funcs:
         position, best, logs = ABC.optimize(
             dimension, num_population, f, max_iter)
-    f.plot(*logs, algo_name=ABC.__name__)
 
 
 def test_paraABC():
     for f in bench_funcs:
         position, best, logs = paraABC.optimize(
-            dimension, num_population, f, max_iter)
+            dimension, num_population, f, max_iter, num_cpu=1)
 
 
 def test_BA():
@@ -32,49 +30,13 @@ def test_BA():
             dimension, num_population, f, max_iter)
 
 
+def test_GWO():
+    for f in bench_funcs:
+        position, best, logs = GWO.optimize(
+            dimension, num_population, f, max_iter)
+
+
 def test_paraBA():
     for f in bench_funcs:
         position, best, logs = paraBA.optimize(
-            dimension, num_population, f, max_iter)
-
-
-def test_parallel_efficiency_ABC():
-    L = len(bench_funcs)
-    seq_time = 0
-    for f in bench_funcs:
-        stime = time.time()
-        position, best, logs = ABC.optimize(
-            dimension, num_population, f, max_iter)
-        seq_time += time.time()-stime
-    seq_time /= L
-
-    para_time = 0
-    for f in bench_funcs:
-        stime = time.time()
-        position, best, logs = paraABC.optimize(
-            dimension, num_population, f, max_iter)
-        para_time += time.time()-stime
-    para_time /= L
-
-    # assert (para_time / seq_time < 3)
-
-
-def test_parallel_efficiency_BA():
-    L = len(bench_funcs)
-    seq_time = 0
-    for f in bench_funcs:
-        stime = time.time()
-        position, best, logs = BA.optimize(
-            dimension, num_population, f, max_iter)
-        seq_time += time.time()-stime
-    seq_time /= L
-
-    para_time = 0
-    for f in bench_funcs:
-        stime = time.time()
-        position, best, logs = paraBA.optimize(
-            dimension, num_population, f, max_iter)
-        para_time += time.time()-stime
-    para_time /= L
-
-    assert (para_time / seq_time < 1.5)
+            dimension, num_population, f, max_iter, num_cpu=1)

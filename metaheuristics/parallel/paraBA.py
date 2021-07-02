@@ -30,7 +30,7 @@ def step(i, t):
     x_random = np.random.uniform(*objective.boundaries, size=dimension)
     obj_random = objective(x_random)
     if (obj_new is None or obj_t > obj_new) and obj_t > obj_random:
-        if obj_new is None or obj_new <= obj_random:
+        if obj_new is None or obj_new >= obj_random:
             value_to_numpy(x_share)[i*dimension:(i+1)*dimension] = x_random
             if obj_random < obj_bests[i]:
                 obj_bests[i] = obj_random
