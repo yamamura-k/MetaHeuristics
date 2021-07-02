@@ -18,7 +18,7 @@ def optimize(dimension, num_population, objective, max_iter, top_k=3, *args, **k
     a = np.zeros(dimension) + 2
     r1 = np.random.random(dimension)
     C = 2*np.random.random(dimension)
-    A = a*r1-a
+    A = 2*a*r1-a
 
     X_s = best_x.copy()
     A_s = np.broadcast_to(A, X_s.shape).copy()
@@ -29,12 +29,14 @@ def optimize(dimension, num_population, objective, max_iter, top_k=3, *args, **k
     best_pos1 = []
     best_pos2 = []
 
-    for _ in range(max_iter):
+    for t in range(max_iter):
         prod = C_s*X_s
         tmp = np.array([A_s[i]*np.abs(prod[i] - x)for i in range(top_k)])
         x = np.sum(np.array([X_s[i]-tmp[i]
                    for i in range(top_k)]), axis=0)/top_k
-        A -= A/max_iter
+        a -= a/max_iter
+        r1 = np.random.random(dimension)
+        A = 2*a*r1-a
         C = 2*np.random.random(dimension)
         obj_vals = [objective(t) for t in x]
         lis.sort(key=lambda x: obj_vals[x])
