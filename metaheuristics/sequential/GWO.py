@@ -8,8 +8,8 @@ def optimize(dimension, num_population, objective, max_iter, top_k=3, *args, **k
     lis = list(range(num_population))
     obj_vals = [objective(t) for t in x]
     lis.sort(key=lambda x: obj_vals[x])
-    best_x = np.zeros((top_k, dimension))
-    best_obj = [None] * top_k
+    best_x = np.empty((top_k, dimension))
+    best_obj = np.empty(top_k)
     for i in range(top_k):
         best_x[i] = x[lis[i]]
         best_obj[i] = obj_vals[lis[i]]

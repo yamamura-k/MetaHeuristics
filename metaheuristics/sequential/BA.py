@@ -38,7 +38,7 @@ def optimize(dimension, num_population, objective, max_iter, f_min=0,
         obj_new = np.zeros(num_population) + INF
 
         idxs = np.where(np.random.rand(*r.shape) > r)
-        x_new = np.zeros_like(x)
+        x_new = np.empty_like(x)
         idx = np.random.randint(0, selection_max, size=(len(idxs[0]),))
         eps = np.broadcast_to(
             np.random.uniform(-1, 1, size=(len(idxs[0]),)), (dimension, len(idxs[0]))).T

@@ -31,7 +31,7 @@ class log_exp(Function):
         else:
             nabla = grad
         _, n = self.A.shape
-        H = np.zeros((n, n))
+        H = np.empty((n, n))
         M = sum(np.exp(a.T@x + 1) for a in self.A)
         for i in range(n):
             for j in range(n):
