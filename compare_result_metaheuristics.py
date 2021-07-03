@@ -1,5 +1,6 @@
 import time
 
+import nelder_mead as NM
 from benchmarks import (ackley, different_power, griewank, k_tablet,
                         rosenbrock, sphere, styblinski, weighted_sphere)
 from metaheuristics import ABC, BA, GWO
@@ -19,7 +20,7 @@ def main():
     bench_funcs = [
         ackley(), sphere(), rosenbrock(), styblinski(dimension), k_tablet(),
         weighted_sphere(), different_power(), griewank()]
-    algorithms = [ABC, BA, GWO]
+    algorithms = [ABC, BA, GWO, NM]
     L = len(bench_funcs)
     AL = len(algorithms)
     for algo in algorithms:
@@ -34,6 +35,8 @@ def main():
             result = f"| {f.name:55} | {f.opt:12.2f} | {best:12.2f} | {etime-stime:8.3f} | {algo.__name__:9}"
             results.append(result)
             times += etime - stime
+            if logs is None:
+                continue
             f.plot(*logs, algo_name=str(dimension)+"."+algo.__name__)
             plot_time += time.time() - etime
         print(
