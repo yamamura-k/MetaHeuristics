@@ -48,9 +48,6 @@ def optimize(dimension, num_population, objective, max_iter, f_min=0,
         x_random = randomize((num_population, dimension), objective)
         obj_random = np.array([objective(t) for t in x_random])
 
-        ((obj_new == INF) | (obj_t > obj_new)) & (
-            obj_t > obj_random) & (obj_random > obj_new)
-
         idxs1 = np.where(((obj_new == INF) | (obj_t > obj_new)) & (
             obj_t > obj_random) & (obj_random > obj_new))
         x[idxs1] = x_new[idxs1]
