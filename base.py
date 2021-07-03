@@ -1,4 +1,5 @@
 import os
+from abc import ABCMeta, abstractmethod
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
@@ -12,12 +13,13 @@ def gen_matrix(m, n):
 INF = 1 << 63
 
 
-class Function():
+class Function(metaclass=ABCMeta):
     def __init__(self):
         self.name = None
         self.opt = None
         self.__boundaries = None
 
+    @abstractmethod
     def __call__(self, x):
         raise NotImplementedError
 
@@ -83,5 +85,6 @@ class Function():
         ani = animation.FuncAnimation(fig, plot, len(pos1), interval=200)
         os.makedirs(save_dir, exist_ok=True)
         ani.save(f"{save_dir}/{self.name}_{algo_name}.gif", writer="pillow")
+        # ani.save(f"{save_dir}/{self.name}_{algo_name}.mp4", writer="ffmpeg")
         plt.clf()
         plt.close()

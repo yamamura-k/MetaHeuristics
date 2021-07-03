@@ -1,5 +1,6 @@
 import time
 
+import nelder_mead as NM
 from benchmarks import (ackley, different_power, griewank, k_tablet,
                         rosenbrock, sphere, styblinski, weighted_sphere)
 from metaheuristics import ABC, BA, GWO
@@ -9,17 +10,17 @@ def main():
     dimension = 2
     num_population = 50
     max_iter = 20
-    sep = "-"*102+"\n"
+    sep = "-"*112+"\n"
     sep_short = "-"*26+"\n"
     print(
         f"{sep_short}|  dim  |  pop  |  iter  |\n{sep_short}| {dimension:5} | {num_population:5} | {max_iter:6} |\n{sep_short}")
     results = []
     header = "".join(
-        [sep, "| function", " "*47, " |   optimal   |  incumbent  | time[ms] | algorithm |\n", sep])
+        [sep, "| function", " "*47, " |    optimal   |   incumbent  | time[ms] | algorithm\n", sep])
     bench_funcs = [
         ackley(), sphere(), rosenbrock(), styblinski(dimension), k_tablet(),
         weighted_sphere(), different_power(), griewank()]
-    algorithms = [ABC, BA, GWO]
+    algorithms = [ABC, BA, GWO, NM]
     L = len(bench_funcs)
     AL = len(algorithms)
     for algo in algorithms:
@@ -31,9 +32,11 @@ def main():
             position, best, logs = algo.optimize(
                 dimension, num_population, f, max_iter)
             etime = time.time()
-            result = f"| {f.name:55} | {f.opt:12.2f} | {best:12.2f} | {etime-stime:8.3f} | {algo.__name__:9} |\n"
+            result = f"| {f.name:55} | {f.opt:12.2f} | {best:12.2f} | {etime-stime:8.3f} | {algo.__name__:9}"
             results.append(result)
             times += etime - stime
+            if logs is None:
+                continue
             f.plot(*logs, algo_name=str(dimension)+"."+algo.__name__)
             plot_time += time.time() - etime
         print(
@@ -42,7 +45,7 @@ def main():
 
     print(header, end="")
     for i, line in enumerate(results):
-        print(line, end="")
+        print(line)
         if i % AL == AL-1:
             print(sep, end="")
 
