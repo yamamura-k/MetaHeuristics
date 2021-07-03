@@ -9,13 +9,13 @@ from scipy.optimize import minimize_scalar
 
 
 def calc_beta(method, d, d_prev, s):
-    if method == "fletcher-reeves":
+    if method == "FR":
         return np.float(d.T@d / d_prev.T@d_prev)
-    elif method == "polak–ribiere":
-        return np.float().T@(d-d_prev) / d_prev.T@d_prev
-    elif method == "hestenes-stiefel":
+    elif method == "PR":
+        return np.float(d.T@(d-d_prev) / d_prev.T@d_prev)
+    elif method == "HS":
         return np.float(-d.T@(d-d_prev) / s.T@(d-d_prev))
-    elif method == "dai–yuan":
+    elif method == "DY":
         return np.float(-d.T@d / s.T@(d-d_prev))
     elif method == "heuristic":
         return max(0, np.float(d.T@(d-d_prev) / d_prev.T@d_prev))
@@ -29,7 +29,7 @@ def lin_search(x, objective, s):
     return np.float(minimize_scalar(phi).x)
 
 
-def optimize(x, objective, max_iter, method="fletcher-reeves", *args, **kwargs):
+def optimize(x, objective, max_iter, method="FR", *args, **kwargs):
     try:
         objective.grad(x)
     except NotImplementedError:
