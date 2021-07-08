@@ -1,7 +1,8 @@
 import numpy as np
 
-from .utils import randomize
+from utils import randomize, setup_logger
 
+logger = setup_logger(__name__)
 
 def optimize(dimension, num_population, objective, max_iter, top_k=3, *args, **kwargs):
     x = randomize((num_population, dimension), objective)
@@ -28,7 +29,7 @@ def optimize(dimension, num_population, objective, max_iter, top_k=3, *args, **k
     best_pos1 = []
     best_pos2 = []
 
-    for _ in range(max_iter):
+    for t in range(max_iter):
         prod = C_s*X_s
         tmp = np.array([A_s[i]*np.abs(prod[i] - x)for i in range(top_k)])
         x = np.sum(np.array([X_s[i]-tmp[i]
@@ -56,5 +57,6 @@ def optimize(dimension, num_population, objective, max_iter, top_k=3, *args, **k
         pos2.append(x[:, 1].tolist())
         best_pos1.append(best_x[1][0])
         best_pos2.append(best_x[1][1])
+        logger.debug(f"iteration {t} [ best objective ] {best_obj[0]}")
 
     return ret_x, ret_obj, (pos1, pos2, best_pos1, best_pos2)

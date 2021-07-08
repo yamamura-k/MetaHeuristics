@@ -6,7 +6,9 @@ References :
 """
 import numpy as np
 from scipy.optimize import minimize_scalar
+from utils import setup_logger
 
+logger = setup_logger(__name__)
 
 def calc_beta(method, d, d_prev, s):
     if method == "FR":
@@ -41,7 +43,7 @@ def optimize(x, objective, max_iter, method="FR", *args, **kwargs):
     d_prev = d
     s = d
     alpha = lin_search(x, objective, s)
-    for _ in range(max_iter):
+    for t in range(max_iter):
         x += alpha*s
         d = -objective.grad(x)
         beta = calc_beta(method, d, d_prev, s)
@@ -52,4 +54,5 @@ def optimize(x, objective, max_iter, method="FR", *args, **kwargs):
         if f < f_best:
             f_best = f
             x_best = x.copy()
+        logger.debug(f"iteration {t} [ best objective ] {f_best} [ beta ] {beta}")
     return f_best, x_best

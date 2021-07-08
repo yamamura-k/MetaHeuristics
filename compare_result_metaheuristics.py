@@ -4,7 +4,7 @@ import nelder_mead as NM
 from benchmarks import (ackley, different_power, griewank, k_tablet,
                         rosenbrock, sphere, styblinski, weighted_sphere)
 from metaheuristics import ABC, BA, GWO
-
+from utils import setup_logger
 
 def main():
     dimension = 2
@@ -37,7 +37,7 @@ def main():
             times += etime - stime
             if logs is None:
                 continue
-            f.plot(*logs, algo_name=str(dimension)+"."+algo.__name__)
+            # f.plot(*logs, algo_name=str(dimension)+"."+algo.__name__)
             plot_time += time.time() - etime
         print(
             "finish!", f"total {times:.3f} ms, average {times / L:.3f} ms, plot {plot_time:.3f} ms")
@@ -51,4 +51,7 @@ def main():
 
 
 if __name__ == '__main__':
+    logger = setup_logger.setLevel(0)
     main()
+else:
+    logger = setup_logger(__name__)

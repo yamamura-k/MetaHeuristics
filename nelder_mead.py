@@ -1,5 +1,7 @@
 import numpy as np
+from utils import setup_logger
 
+logger = setup_logger(__name__)
 
 def optimize(dimension, num_population, objective, max_iter, alpha=1, gamma=2, rho=0.5, sigma=0.5):
     x = np.random.random(dimension)
@@ -7,7 +9,7 @@ def optimize(dimension, num_population, objective, max_iter, alpha=1, gamma=2, r
     best_obj = float('inf')
 
     x = np.vstack([x + np.eye(dimension), x])
-    for _ in range(max_iter):
+    for t in range(max_iter):
         obj_vals = np.array([objective(t) for t in x])
         orders = np.argsort(obj_vals)
         obj_vals = obj_vals[orders]
@@ -55,5 +57,7 @@ def optimize(dimension, num_population, objective, max_iter, alpha=1, gamma=2, r
                 shrink_points = x[0] + \
                     sigma * (x - x[0])
                 x[1:] = shrink_points[1:]
+
+        logger.debug(f"iteration {t} [ best objective ] {best_obj}")
 
     return best_x, best_obj, None

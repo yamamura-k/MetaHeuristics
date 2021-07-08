@@ -5,7 +5,9 @@ Reference : https://link.springer.com/content/pdf/10.1007/s10898-007-9149-x.pdf
 """
 import numpy as np
 
-from .utils import randomize
+from utils import randomize, setup_logger
+
+logger = setup_logger(__name__)
 
 
 def optimize(dimension, num_population, objective, max_iter, max_visit=10):
@@ -41,7 +43,7 @@ def optimize(dimension, num_population, objective, max_iter, max_visit=10):
     best_pos1 = []
     best_pos2 = []
 
-    for c in range(1, max_iter+1):
+    for t in range(1, max_iter+1):
         for _ in range(num_population):
             # employed bees
             i = np.random.randint(0, num_population-1)
@@ -68,6 +70,7 @@ def optimize(dimension, num_population, objective, max_iter, max_visit=10):
         best_pos = np.where(v == m)
         best_pos1.append(x[best_pos][0][0])
         best_pos2.append(x[best_pos][0][1])
+        logger.debug(f"iteration {t} [ best objective ] {m}")
 
     min_idx = np.where(v == np.min(v))[0][0]
 
