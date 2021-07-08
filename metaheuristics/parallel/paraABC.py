@@ -9,7 +9,7 @@ from multiprocessing import Pool
 
 import numpy as np
 
-from .utils import numpy_to_value, value_to_numpy, value_to_numpy2
+from utils import numpy_to_value, value_to_numpy, value_to_numpy2
 
 
 def update(i):

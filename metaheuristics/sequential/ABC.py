@@ -5,7 +5,7 @@ Reference : https://link.springer.com/content/pdf/10.1007/s10898-007-9149-x.pdf
 """
 import numpy as np
 
-from .utils import randomize
+from utils import randomize
 
 
 def optimize(dimension, num_population, objective, max_iter, max_visit=10):

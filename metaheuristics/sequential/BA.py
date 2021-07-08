@@ -1,6 +1,6 @@
 import numpy as np
 
-from .utils import randomize
+from utils import randomize
 
 
 # numpy version

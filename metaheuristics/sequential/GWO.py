@@ -1,6 +1,6 @@
 import numpy as np
 
-from .utils import randomize
+from utils import randomize
 
 
 def optimize(dimension, num_population, objective, max_iter, top_k=3, *args, **kwargs):
