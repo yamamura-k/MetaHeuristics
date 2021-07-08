@@ -3,6 +3,8 @@ import numpy as np
 from benchmarks import log_exp
 from grad_based import CG, GD, NV, NW
 
+from utils import setup_logger
+
 
 def main():
     n, m = 10, 100
@@ -19,4 +21,7 @@ def main():
 
 
 if __name__ == '__main__':
+    logger = setup_logger.setLevel(0)
     main()
+else:
+    logger = setup_logger(__name__)

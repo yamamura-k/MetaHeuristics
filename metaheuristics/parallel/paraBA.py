@@ -9,7 +9,9 @@ from multiprocessing import Pool
 
 import numpy as np
 
-from utils import numpy_to_value, value_to_numpy
+from utils import numpy_to_value, value_to_numpy, setup_logger
+
+logger = setup_logger(__name__)
 
 
 def step(i, t):
@@ -130,5 +132,6 @@ def optimize(dimension, num_population, objective, max_iter, f_min=0,
                         for i in range(num_population)])
             best_pos1.append(best_x[0])
             best_pos2.append(best_x[1])
+            logger.debug(f"iteration {t} [ best objective ] {obj_best}")
 
     return best_x, obj_best, (pos1, pos2, best_pos1, best_pos2)

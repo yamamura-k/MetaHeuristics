@@ -1,5 +1,8 @@
 import numpy as np
 
+from utils import setup_logger
+
+logger = setup_logger(__name__)
 
 def optimize(x, objective, eps=1e-20, *args, **kwargs):
     try:
@@ -20,7 +23,7 @@ def optimize(x, objective, eps=1e-20, *args, **kwargs):
 
     f_best = objective(x)
     x_best = x.copy()
-
+    t = 0
     while lam > eps:
         eig, _ = np.linalg.eig(H_inv)
         assert (eig >= 0).all()
@@ -34,5 +37,7 @@ def optimize(x, objective, eps=1e-20, *args, **kwargs):
         if f < f_best:
             f_best = f
             x_best = x.copy()
+        logger.debug(f"iteration {t} [ best objective ] {f_best}")
+        t += 1
 
     return f_best, x_best

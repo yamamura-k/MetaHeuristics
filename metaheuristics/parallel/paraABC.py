@@ -9,7 +9,9 @@ from multiprocessing import Pool
 
 import numpy as np
 
-from utils import numpy_to_value, value_to_numpy, value_to_numpy2
+from utils import numpy_to_value, value_to_numpy, value_to_numpy2, setup_logger
+
+logger = setup_logger(__name__)
 
 
 def update(i):
@@ -81,7 +83,7 @@ def optimize(dimension, num_population, objective,
               initargs=(x, v, cnt, x_share,
                         v_share, cnt_share, objective)) as p:
 
-        for c in range(1, max_iter+1):
+        for t in range(1, max_iter+1):
             # employed bees
             # result = p.map_async(update, all_candidates)
             p.map(update, all_candidates)
@@ -125,5 +127,7 @@ def optimize(dimension, num_population, objective,
             if m < best_obj:
                 best_obj = m
                 best_x = best_x_.copy()
+            
+            logger.debug(f"iteration {t} [ best objective ] {best_obj}")
 
     return best_x, best_obj, (pos1, pos2, best_pos1, best_pos2)

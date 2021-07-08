@@ -1,7 +1,8 @@
 import numpy as np
 
-from utils import randomize
+from utils import randomize, setup_logger
 
+logger = setup_logger(__name__)
 
 # numpy version
 def optimize(dimension, num_population, objective, max_iter, f_min=0,
@@ -76,6 +77,8 @@ def optimize(dimension, num_population, objective, max_iter, f_min=0,
         best_pos1.append(best_x[0])
         best_pos2.append(best_x[1])
 
+        logger.debug(f"iteration {step} [ best objective ] {obj_best}")
+
     return best_x, obj_best, (pos1, pos2, best_pos1, best_pos2)
 
 # slower version
@@ -147,5 +150,6 @@ def _optimize(dimension, num_population, objective, max_iter, f_min=0,
         pos2.append(x[:, 1].tolist())
         best_pos1.append(best_x[0])
         best_pos2.append(best_x[1])
+        logger.debug(f"iteration {step} [ best objective ] {obj_best}")
 
     return best_x, obj_best, (pos1, pos2, best_pos1, best_pos2)
