@@ -10,9 +10,6 @@ def gen_matrix(m, n):
     return np.random.randn(m, n)
 
 
-INF = 1 << 63
-
-
 class Function(metaclass=ABCMeta):
     def __init__(self):
         self.name = None
@@ -30,9 +27,8 @@ class Function(metaclass=ABCMeta):
     @boundaries.getter
     def boundaries(self):
         if self.__boundaries is None:
-            return [-INF, INF]
-        else:
-            return self.__boundaries
+            self.boundaries = (-np.inf, np.inf)
+        return self.__boundaries
 
     @boundaries.setter
     def boundaries(self, bound):
@@ -45,12 +41,10 @@ class Function(metaclass=ABCMeta):
         raise NotImplementedError
 
     def _projection(self, x):
-        L = np.where(x < self.boundaries[0])[0]
-        for i in L:
-            x[i] = self.boundaries[0]
-        U = np.where(x > self.boundaries[1])[0]
-        for i in U:
-            x[i] = self.boundaries[1]
+        x = np.asarray(x)
+        if (x < self.boundaries[0]).any() or (x > self.boundaries[1]).any():
+            x = np.clip(x, self.boundaries[0], self.boundaries[1])
+        return x
 
     def plot(self, pos1, pos2, best_pos1, best_pos2,
              save_dir="./images", algo_name="tmp"):

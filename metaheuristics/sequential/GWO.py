@@ -1,8 +1,8 @@
 import numpy as np
-
 from utils import randomize, setup_logger
 
 logger = setup_logger(__name__)
+
 
 def optimize(dimension, num_population, objective, max_iter, top_k=3, *args, **kwargs):
     x = randomize((num_population, dimension), objective)
@@ -15,7 +15,7 @@ def optimize(dimension, num_population, objective, max_iter, top_k=3, *args, **k
         best_obj[i] = obj_vals[lis[i]]
     ret_obj = best_obj[0]
     ret_x = best_x[0].copy()
-    a = np.zeros(dimension) + 2
+    a = np.full(dimension, 2.0)
     r1 = np.random.random(dimension)
     C = 2*np.random.random(dimension)
     A = 2*a*r1-a

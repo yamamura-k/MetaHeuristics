@@ -3,10 +3,11 @@ from utils import setup_logger
 
 logger = setup_logger(__name__)
 
+
 def optimize(dimension, num_population, objective, max_iter, alpha=1, gamma=2, rho=0.5, sigma=0.5):
     x = np.random.random(dimension)
     best_x = None
-    best_obj = float('inf')
+    best_obj = np.inf
 
     x = np.vstack([x + np.eye(dimension), x])
     for t in range(max_iter):

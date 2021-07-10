@@ -8,8 +8,7 @@ import ctypes
 from multiprocessing import Pool
 
 import numpy as np
-
-from utils import numpy_to_value, value_to_numpy, value_to_numpy2, setup_logger
+from utils import numpy_to_value, setup_logger, value_to_numpy, value_to_numpy2
 
 logger = setup_logger(__name__)
 
@@ -62,7 +61,7 @@ def init(_x, _v, _cnt, x_share_, v_share_, cnt_share_, _objective):
 
 def optimize(dimension, num_population, objective,
              max_iter, max_visit=10, num_cpu=None):
-    best_obj = float('inf')
+    best_obj = np.inf
     best_x = None
     # step1 : initialization
     x = np.random.uniform(*objective.boundaries, size=num_population*dimension)
@@ -127,7 +126,7 @@ def optimize(dimension, num_population, objective,
             if m < best_obj:
                 best_obj = m
                 best_x = best_x_.copy()
-            
+
             logger.debug(f"iteration {t} [ best objective ] {best_obj}")
 
     return best_x, best_obj, (pos1, pos2, best_pos1, best_pos2)
