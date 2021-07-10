@@ -18,7 +18,7 @@ def test_ABC():
     for f in bench_funcs:
         position, best, logs = ABC.optimize(
             dimension, num_population, f, max_iter)
-        check_grad(best, f)
+        check_grad(position, f)
 
 
 def test_paraABC():
