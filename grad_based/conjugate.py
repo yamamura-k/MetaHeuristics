@@ -5,12 +5,12 @@ References :
 - 基礎数学 IV 最適化理論
 """
 import numpy as np
-from scipy.optimize import minimize_scalar
-from utils import setup_logger
+from utils import lin_search, setup_logger
 
 logger = setup_logger(__name__)
 
-def calc_beta(method, d, d_prev, s):
+
+def getBeta(method, d, d_prev, s):
     if method == "FR":
         return np.float(d.T@d / d_prev.T@d_prev)
     elif method == "PR":
@@ -25,34 +25,29 @@ def calc_beta(method, d, d_prev, s):
         raise NotImplementedError
 
 
-def lin_search(x, objective, s):
-    def phi(alpha):
-        return objective(x-alpha*s)
-    return np.float(minimize_scalar(phi).x)
-
-
-def optimize(x, objective, max_iter, method="FR", *args, **kwargs):
+def optimize(x, objective, max_iter, method="exact", beta_method="FR", *args, **kwargs):
     try:
         objective.grad(x)
     except NotImplementedError:
         raise AttributeError(
-            f"Gradient of {objective.__name__} is not defined.")
+            f"Gradient of {objective} is not defined.")
     f_best = objective(x)
     x_best = x.copy()
     d = -objective.grad(x)
     d_prev = d
     s = d
-    alpha = lin_search(x, objective, s)
+    alpha = lin_search(x, s, objective, method=method)
     for t in range(max_iter):
         x += alpha*s
         d = -objective.grad(x)
-        beta = calc_beta(method, d, d_prev, s)
+        beta = getBeta(beta_method, d, d_prev, s)
         s = beta*s + d
-        alpha = lin_search(x, objective, s)
+        alpha = lin_search(x, s, objective, method=method)
         d_prev = d
         f = objective(x)
         if f < f_best:
             f_best = f
             x_best = x.copy()
-        logger.debug(f"iteration {t} [ best objective ] {f_best} [ beta ] {beta}")
+        logger.debug(
+            f"iteration {t} [ best objective ] {f_best} [ beta ] {beta}")
     return f_best, x_best

@@ -6,6 +6,7 @@ from benchmarks import (ackley, different_power, griewank, k_tablet,
 from metaheuristics import ABC, BA, GWO
 from utils import setup_logger
 
+
 def main():
     dimension = 2
     num_population = 50

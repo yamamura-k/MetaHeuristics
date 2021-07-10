@@ -4,17 +4,18 @@ from utils import setup_logger
 
 logger = setup_logger(__name__)
 
+
 def optimize(x, objective, eps=1e-20, *args, **kwargs):
     try:
         objective.grad(x)
     except NotImplementedError:
         raise AttributeError(
-            f"Gradient of {objective.__name__} is not defined.")
+            f"Gradient of {objective} is not defined.")
     try:
         objective.hesse(x)
     except NotImplementedError:
         raise AttributeError(
-            f"Hesse matrix of {objective.__name__} is not defined.")
+            f"Hesse matrix of {objective} is not defined.")
 
     nab = objective.grad(x)
     H_inv = np.linalg.inv(objective.hesse(x))

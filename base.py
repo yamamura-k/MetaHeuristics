@@ -35,7 +35,16 @@ class Function(metaclass=ABCMeta):
         self.__boundaries = bound
 
     def grad(self, x):
-        raise NotImplementedError
+        """approximate gradient
+        """
+        n = x.shape[0]
+        h = 1e-6
+        I = np.eye(n, n)*h
+        x_h = I + x
+        x_b = -I + x
+        _grad = np.array(
+            [[(self(x_h[:, i]) - self(x_b[:, i])) / 2 / h]for i in range(n)])
+        return _grad
 
     def hesse(self, x):
         raise NotImplementedError

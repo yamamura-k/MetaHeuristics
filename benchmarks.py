@@ -17,10 +17,10 @@ class log_exp(Function):
         self.name = "log(sum(a_i x))"
 
     def __call__(self, x):
-        return np.float(np.log(sum(np.exp(a.T@x + 1) for a in self.A)))
+        return np.log(np.sum(np.exp(self.A@x + 1)))
 
     def grad(self, x):
-        M = sum(np.exp(a@x + 1) for a in self.A)
+        M = np.sum(np.exp(self.A@x + 1))
         _nabla = np.array([sum(a[i]*np.exp(a.T@x + 1)
                           for a in self.A)/M for i in range(len(x))])
         return _nabla.reshape(len(_nabla), 1)
@@ -32,7 +32,7 @@ class log_exp(Function):
             nabla = grad
         _, n = self.A.shape
         H = np.empty((n, n))
-        M = sum(np.exp(a.T@x + 1) for a in self.A)
+        M = np.sum(np.exp(self.A@x + 1))
         for i in range(n):
             for j in range(n):
                 H[i][j] = nabla[i]*nabla[j] + \
