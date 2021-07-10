@@ -19,7 +19,7 @@ def calc_stepsize(method, x, alpha, objective):
 
 def wolfe(x, objective, c1=1e-5, c2=1-1e-5, alpha=10):
     a = 0
-    b = float('inf')
+    b = np.inf
     nab = objective.grad(x)
     d = -nab
     f = objective(x)

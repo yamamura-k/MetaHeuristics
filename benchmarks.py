@@ -77,11 +77,7 @@ class rosenbrock(Function):
 
     def __call__(self, x):
         self._projection(x)
-        val = 0
-        for i in range(0, len(x) - 1):
-            t1 = 100 * (x[i + 1] - x[i] ** 2) ** 2
-            t2 = (x[i] - 1) ** 2
-            val += t1 + t2
+        val = np.sum(100*(x[1:] - x[:-1]**2)**2 + (x[:-1] - 1)**2, axis=0)
         return val
 
 

@@ -1,13 +1,13 @@
 import numpy as np
-
 from utils import randomize, setup_logger
 
 logger = setup_logger(__name__)
 
 # numpy version
+
+
 def optimize(dimension, num_population, objective, max_iter, f_min=0,
              f_max=100, selection_max=10, alpha=0.9, gamma=0.9):
-    INF = (1 << 60)
     x = randomize((num_population, dimension), objective)
     v = np.random.random((num_population, dimension))
     f = np.random.uniform(f_min, f_max, size=num_population)
@@ -15,7 +15,7 @@ def optimize(dimension, num_population, objective, max_iter, f_min=0,
     r = np.random.uniform(0, 1, size=num_population)
     r0 = r.copy()
 
-    obj_best = float('inf')
+    obj_best = np.inf
     best_x = None
     for i in range(num_population):
         obj_tmp = objective(x[i])
@@ -36,7 +36,7 @@ def optimize(dimension, num_population, objective, max_iter, f_min=0,
         v += (x - np.broadcast_to(best_x, x.shape)) * f
         x_t = x + v
         obj_t = np.array([objective(t) for t in x_t])
-        obj_new = np.zeros(num_population) + INF
+        obj_new = np.full(num_population, np.inf)
 
         idxs = np.where(np.random.rand(*r.shape) > r)
         x_new = np.empty_like(x)
@@ -49,17 +49,17 @@ def optimize(dimension, num_population, objective, max_iter, f_min=0,
         x_random = randomize((num_population, dimension), objective)
         obj_random = np.array([objective(t) for t in x_random])
 
-        idxs1 = np.where(((obj_new == INF) | (obj_t > obj_new)) & (
+        idxs1 = np.where(((obj_new == np.inf) | (obj_t > obj_new)) & (
             obj_t > obj_random) & (obj_random > obj_new))
         x[idxs1] = x_new[idxs1]
         obj_current[idxs1] = obj_new[idxs1]
 
-        idxs2 = np.where(((obj_new == INF) | (obj_t > obj_new)) & (
+        idxs2 = np.where(((obj_new == np.inf) | (obj_t > obj_new)) & (
             obj_t > obj_random) & (~(obj_random > obj_new)))
         x[idxs2] = x_random[idxs2]
         obj_current[idxs2] = obj_random[idxs2]
 
-        idxs3 = np.where(~(((obj_new == INF) | (obj_t > obj_new)) & (
+        idxs3 = np.where(~(((obj_new == np.inf) | (obj_t > obj_new)) & (
             obj_t > obj_random)))
         x[idxs3] = x_t[idxs3]
         obj_current[idxs3] = obj_t[idxs3]
@@ -93,7 +93,7 @@ def _optimize(dimension, num_population, objective, max_iter, f_min=0,
     r = np.random.uniform(0, 1, size=num_population)
     r0 = r.copy()
 
-    obj_best = float('inf')
+    obj_best = np.inf
     best_x = None
     for i in range(num_population):
         obj_tmp = objective(x[i])
