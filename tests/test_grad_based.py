@@ -10,23 +10,23 @@ max_iter = 100
 
 
 def test_CG_FR():
-    CG.optimize(x.copy(), func, max_iter, method="FR")
+    CG.optimize(x.copy(), func, max_iter, beta_method="FR")
 
 
 def test_CG_PR():
-    CG.optimize(x.copy(), func, max_iter, method="PR")
+    CG.optimize(x.copy(), func, max_iter, beta_method="PR")
 
 
 def test_CG_HS():
-    CG.optimize(x.copy(), func, max_iter, method="HS")
+    CG.optimize(x.copy(), func, max_iter, beta_method="HS")
 
 
 def test_CG_DY():
-    CG.optimize(x.copy(), func, max_iter, method="DY")
+    CG.optimize(x.copy(), func, max_iter, beta_method="DY")
 
 
 def test_CG_heuristic():
-    CG.optimize(x.copy(), func, max_iter, method="heuristic")
+    CG.optimize(x.copy(), func, max_iter, beta_method="heuristic")
 
 
 def test_GD_static():
