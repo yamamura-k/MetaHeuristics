@@ -30,15 +30,16 @@ def main():
         plot_time = 0
         for f in bench_funcs:
             stime = time.time()
-            position, best, logs = algo.optimize(
+            tmp = algo.optimize(
                 dimension, num_population, f, max_iter)
+            best = tmp.best_obj
             etime = time.time()
             result = f"| {f.name:55} | {f.opt:12.2f} | {best:12.2f} | {etime-stime:8.3f} | {algo.__name__:9}"
             results.append(result)
             times += etime - stime
-            if logs is None:
+            if len(tmp.pos1) == 0:
                 continue
-            # f.plot(*logs, algo_name=str(dimension)+"."+algo.__name__)
+            # tmp.plot(*logs, algo_name=str(dimension)+"."+algo.__name__)
             plot_time += time.time() - etime
         print(
             "finish!", f"total {times:.3f} ms, average {times / L:.3f} ms, plot {plot_time:.3f} ms")

@@ -1,5 +1,6 @@
 import numpy as np
 from utils import randomize, setup_logger
+from utils.common import ContinuousOptResult
 
 logger = setup_logger(__name__)
 
@@ -23,10 +24,8 @@ def optimize(dimension, num_population, objective, max_iter, f_min=0,
             obj_best = obj_tmp
             best_x = x[i].copy()
 
-    pos1 = []
-    pos2 = []
-    best_pos1 = []
-    best_pos2 = []
+    result = ContinuousOptResult(objective, "BA", logger)
+    result.post_process_per_iter(x, best_x, -1)
 
     for step in range(max_iter):
         obj_current = np.array([objective(t) for t in x])
@@ -72,14 +71,9 @@ def optimize(dimension, num_population, objective, max_iter, f_min=0,
         r = r0 * (1-np.exp(-gamma*step))
         A *= alpha
 
-        pos1.append(x[:, 0].tolist())
-        pos2.append(x[:, 1].tolist())
-        best_pos1.append(best_x[0])
-        best_pos2.append(best_x[1])
+        result.post_process_per_iter(x, best_x, step)
 
-        logger.debug(f"iteration {step} [ best objective ] {obj_best}")
-
-    return best_x, obj_best, (pos1, pos2, best_pos1, best_pos2)
+    return result
 
 # slower version
 
@@ -101,10 +95,8 @@ def _optimize(dimension, num_population, objective, max_iter, f_min=0,
             obj_best = obj_tmp
             best_x = x[i].copy()
 
-    pos1 = []
-    pos2 = []
-    best_pos1 = []
-    best_pos2 = []
+    result = ContinuousOptResult(objective, "BA", logger)
+    result.post_process_per_iter(x, best_x, -1)
 
     for step in range(max_iter):
         for i in range(num_population):
@@ -146,10 +138,6 @@ def _optimize(dimension, num_population, objective, max_iter, f_min=0,
             x.sort(key=lambda s: objective(s))
             x = np.array(x)
 
-        pos1.append(x[:, 0].tolist())
-        pos2.append(x[:, 1].tolist())
-        best_pos1.append(best_x[0])
-        best_pos2.append(best_x[1])
-        logger.debug(f"iteration {step} [ best objective ] {obj_best}")
+        result.post_process_per_iter(x, best_x, step)
 
-    return best_x, obj_best, (pos1, pos2, best_pos1, best_pos2)
+    return result

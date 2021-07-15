@@ -1,5 +1,6 @@
 import numpy as np
 from utils import randomize, setup_logger
+from utils.common import ContinuousOptResult
 
 logger = setup_logger(__name__)
 
@@ -13,8 +14,7 @@ def optimize(dimension, num_population, objective, max_iter, top_k=3, *args, **k
     for i in range(top_k):
         best_x[i] = x[lis[i]]
         best_obj[i] = obj_vals[lis[i]]
-    ret_obj = best_obj[0]
-    ret_x = best_x[0].copy()
+
     a = np.full(dimension, 2.0)
     r1 = np.random.random(dimension)
     C = 2*np.random.random(dimension)
@@ -24,10 +24,8 @@ def optimize(dimension, num_population, objective, max_iter, top_k=3, *args, **k
     A_s = np.broadcast_to(A, X_s.shape).copy()
     C_s = np.broadcast_to(C, X_s.shape).copy()
 
-    pos1 = []
-    pos2 = []
-    best_pos1 = []
-    best_pos2 = []
+    result = ContinuousOptResult(objective, "GWO", logger)
+    result.post_process_per_iter(x, best_x[0], -1)
 
     for t in range(max_iter):
         prod = C_s*X_s
@@ -49,14 +47,6 @@ def optimize(dimension, num_population, objective, max_iter, top_k=3, *args, **k
             A_s[i] = np.broadcast_to(A, (dimension,)).copy()
             C_s[i] = np.broadcast_to(C, (dimension,)).copy()
 
-        if ret_obj > best_obj[0]:
-            ret_obj = best_obj[0]
-            ret_x = best_x[0].copy()
+        result.post_process_per_iter(x, best_x[0], t)
 
-        pos1.append(x[:, 0].tolist())
-        pos2.append(x[:, 1].tolist())
-        best_pos1.append(best_x[1][0])
-        best_pos2.append(best_x[1][1])
-        logger.debug(f"iteration {t} [ best objective ] {best_obj[0]}")
-
-    return ret_x, ret_obj, (pos1, pos2, best_pos1, best_pos2)
+    return result

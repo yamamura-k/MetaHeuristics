@@ -6,6 +6,7 @@ References :
 """
 import numpy as np
 from utils import lin_search, setup_logger
+from utils.common import ContinuousOptResult
 
 logger = setup_logger(__name__)
 
@@ -31,8 +32,9 @@ def optimize(x, objective, max_iter, method="exact", beta_method="FR", *args, **
     except NotImplementedError:
         raise AttributeError(
             f"Gradient of {objective} is not defined.")
-    f_best = objective(x)
-    x_best = x.copy()
+    result = ContinuousOptResult(objective, "CG", logger)
+    result.post_process_per_iter(x, x, -1)
+
     d = -objective.grad(x)
     d_prev = d
     s = d
@@ -44,10 +46,7 @@ def optimize(x, objective, max_iter, method="exact", beta_method="FR", *args, **
         s = beta*s + d
         alpha = lin_search(x, s, objective, method=method)
         d_prev = d
-        f = objective(x)
-        if f < f_best:
-            f_best = f
-            x_best = x.copy()
-        logger.debug(
-            f"iteration {t} [ best objective ] {f_best} [ beta ] {beta}")
-    return f_best, x_best
+
+        result.post_process_per_iter(x, x, t)
+
+    return result

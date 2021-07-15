@@ -1,5 +1,7 @@
 import numpy as np
+
 from utils import setup_logger
+from utils.common import ContinuousOptResult
 
 logger = setup_logger(__name__)
 
@@ -10,6 +12,7 @@ def optimize(dimension, num_population, objective, max_iter, alpha=1, gamma=2, r
     best_obj = np.inf
 
     x = np.vstack([x + np.eye(dimension), x])
+    result = ContinuousOptResult(objective, "NM", logger)
     for t in range(max_iter):
         obj_vals = np.array([objective(t) for t in x])
         orders = np.argsort(obj_vals)
@@ -59,6 +62,6 @@ def optimize(dimension, num_population, objective, max_iter, alpha=1, gamma=2, r
                     sigma * (x - x[0])
                 x[1:] = shrink_points[1:]
 
-        logger.debug(f"iteration {t} [ best objective ] {best_obj}")
+        result.post_process_per_iter(x, best_x, t)
 
-    return best_x, best_obj, None
+    return result
