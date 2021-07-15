@@ -28,8 +28,7 @@ def main():
             for m in ["exact", "armijo"]:
                 tmp = algo.optimize(
                     x.copy(), bench_func, max_iter, method=m)
-                best_f = np.asscalar(tmp.best_obj)
-                result.append([(algo.__name__, best_f), tmp.best_x])
+                result.append([(algo.__name__, tmp.best_obj), tmp.best_x])
     for r in result:
         print(*r[0])
         if len(r) > 1:

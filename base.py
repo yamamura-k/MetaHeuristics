@@ -49,5 +49,5 @@ class Function(metaclass=ABCMeta):
     def _projection(self, x):
         x = np.asarray(x)
         if (x < self.boundaries[0]).any() or (x > self.boundaries[1]).any():
-            x = np.clip(x, self.boundaries[0], self.boundaries[1])
+            x = np.clip(x, *self.boundaries)
         return x

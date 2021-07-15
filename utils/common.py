@@ -54,7 +54,7 @@ class ContinuousOptResult(object):
             self.best_pos1.append(best_x[0])
             self.best_pos2.append(best_x[1])
 
-        tmp_obj = self.objective(best_x)
+        tmp_obj = np.asscalar(self.objective(best_x))
         if tmp_obj < self.best_obj:
             self.best_obj = tmp_obj
             self.best_x = best_x.copy()
