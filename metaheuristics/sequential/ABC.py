@@ -4,13 +4,14 @@ Sample implementation of Artificial Bee Colony Algorithm.
 Reference : https://link.springer.com/content/pdf/10.1007/s10898-007-9149-x.pdf
 """
 import numpy as np
-
 from utils import randomize, setup_logger
+from utils.common import FunctionWrapper, ResultManager
 
 logger = setup_logger(__name__)
 
 
-def optimize(dimension, num_population, objective, max_iter, max_visit=10):
+def optimize(dimension, objective, max_iter, max_visit=10, num_population=100, *args, **kwargs):
+    objective = FunctionWrapper(objective, *args, **kwargs)
     # step1 : initialization
     x = randomize((num_population, dimension), objective)
     all_candidates = np.arange(num_population)
@@ -38,10 +39,11 @@ def optimize(dimension, num_population, objective, max_iter, max_visit=10):
                 x[i] = x_i
                 v[i] = v_new
                 cnt[i] = 1
-    pos1 = []
-    pos2 = []
-    best_pos1 = []
-    best_pos2 = []
+
+    result = ResultManager(objective, "ABC", logger, *args, **kwargs)
+    m = np.min(v)
+    best_pos = np.where(v == m)
+    result.post_process_per_iter(x, x[best_pos][0], -1)
 
     for t in range(1, max_iter+1):
         for _ in range(num_population):
@@ -65,13 +67,8 @@ def optimize(dimension, num_population, objective, max_iter, max_visit=10):
             random_update()
 
         m = np.min(v)
-        pos1.append(x[:, 0].tolist())
-        pos2.append(x[:, 1].tolist())
         best_pos = np.where(v == m)
-        best_pos1.append(x[best_pos][0][0])
-        best_pos2.append(x[best_pos][0][1])
-        logger.debug(f"iteration {t} [ best objective ] {m}")
+        if result.post_process_per_iter(x, x[best_pos][0], t):
+            break
 
-    min_idx = np.where(v == np.min(v))[0][0]
-
-    return x[min_idx], v[min_idx], (pos1, pos2, best_pos1, best_pos2)
+    return result

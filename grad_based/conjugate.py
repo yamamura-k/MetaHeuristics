@@ -6,12 +6,15 @@ References :
 """
 import numpy as np
 from utils import lin_search, setup_logger
+from utils.common import FunctionWrapper, ResultManager, randomize
 
 logger = setup_logger(__name__)
 
 
 def getBeta(method, d, d_prev, s):
-    if method == "FR":
+    if method == "default":
+        return max(0, getBeta("PR", d, d_prev, s))
+    elif method == "FR":
         return np.float(d.T@d / d_prev.T@d_prev)
     elif method == "PR":
         return np.float(d.T@(d-d_prev) / d_prev.T@d_prev)
@@ -25,14 +28,17 @@ def getBeta(method, d, d_prev, s):
         raise NotImplementedError
 
 
-def optimize(x, objective, max_iter, method="exact", beta_method="FR", *args, **kwargs):
+def optimize(dimension, objective, max_iter, method="exact", beta_method="default", *args, **kwargs):
+    objective = FunctionWrapper(objective, *args, **kwargs)
+    x = randomize((dimension, 1), objective)
     try:
         objective.grad(x)
     except NotImplementedError:
         raise AttributeError(
             f"Gradient of {objective} is not defined.")
-    f_best = objective(x)
-    x_best = x.copy()
+    result = ResultManager(objective, "CG", logger, *args, **kwargs)
+    result.post_process_per_iter(x, x, -1)
+
     d = -objective.grad(x)
     d_prev = d
     s = d
@@ -44,10 +50,8 @@ def optimize(x, objective, max_iter, method="exact", beta_method="FR", *args, **
         s = beta*s + d
         alpha = lin_search(x, s, objective, method=method)
         d_prev = d
-        f = objective(x)
-        if f < f_best:
-            f_best = f
-            x_best = x.copy()
-        logger.debug(
-            f"iteration {t} [ best objective ] {f_best} [ beta ] {beta}")
-    return f_best, x_best
+
+        if result.post_process_per_iter(x, x, t):
+            break
+
+    return result

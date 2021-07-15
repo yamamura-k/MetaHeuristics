@@ -7,7 +7,7 @@ from metaheuristics import ABC, BA, GWO, paraABC, paraBA
 from utils.grad_based import check_grad
 
 dimension = 2
-num_population = 100
+num_population = 10
 max_iter = 20
 bench_funcs = [
     ackley(), sphere(), rosenbrock(), styblinski(dimension), k_tablet(),
@@ -16,36 +16,36 @@ bench_funcs = [
 
 def test_ABC():
     for f in bench_funcs:
-        position, best, logs = ABC.optimize(
-            dimension, num_population, f, max_iter)
-        check_grad(position, f)
+        result = ABC.optimize(
+            dimension, f, max_iter, num_population=num_population)
+        check_grad(result.best_x, f)
 
 
 def test_paraABC():
     for f in bench_funcs:
-        position, best, logs = paraABC.optimize(
-            dimension, num_population, f, max_iter, num_cpu=1)
+        result = paraABC.optimize(
+            dimension, f, max_iter, num_population=num_population, num_cpu=1)
 
 
 def test_BA():
     for f in bench_funcs:
-        position, best, logs = BA.optimize(
-            dimension, num_population, f, max_iter)
+        result = BA.optimize(
+            dimension, f, max_iter, num_population=num_population)
 
 
 def test_GWO():
     for f in bench_funcs:
-        position, best, logs = GWO.optimize(
-            dimension, num_population, f, max_iter)
+        result = GWO.optimize(
+            dimension, f, max_iter, num_population=num_population)
 
 
 def test_NM():
     for f in bench_funcs:
-        position, best, logs = NM.optimize(
-            dimension, num_population, f, max_iter)
+        result = NM.optimize(
+            dimension, f, max_iter, num_population=num_population)
 
 
 def test_paraBA():
     for f in bench_funcs:
-        position, best, logs = paraBA.optimize(
-            dimension, num_population, f, max_iter, num_cpu=1)
+        result = paraBA.optimize(
+            dimension, f, max_iter, num_population=num_population, num_cpu=1)

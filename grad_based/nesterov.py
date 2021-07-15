@@ -1,10 +1,13 @@
 import numpy as np
-from utils import lin_search, setup_logger
+from utils import lin_search, randomize, setup_logger
+from utils.common import FunctionWrapper, ResultManager
 
 logger = setup_logger(__name__)
 
 
-def optimize(x, objective, max_iter, alpha=1e-4, method="exact", *args, **kwargs):
+def optimize(dimension, objective, max_iter, alpha=1e-4, method="exact", *args, **kwargs):
+    objective = FunctionWrapper(objective, *args, **kwargs)
+    x = randomize((dimension, 1), objective)
     try:
         objective.grad(x)
     except NotImplementedError:
@@ -14,26 +17,22 @@ def optimize(x, objective, max_iter, alpha=1e-4, method="exact", *args, **kwargs
     lam_nx = None
     gam = -1
     y = x.copy()
-    f_best = objective(x)
-    x_best = x.copy()
+    result = ResultManager(objective, "NV", logger, *args, **kwargs)
+    result.post_process_per_iter(x, x, -1)
 
     for t in range(max_iter):
         if alpha == 0:
             break
-        f = objective(x)
-        if f < f_best:
-            f_best = f
-            x_best = x.copy()
         y_nx = x - objective.grad(x)*alpha
         x = y_nx + gam*(y_nx - y)
         y = y_nx
         lam_nx = 1 + np.sqrt(1+2*lam**2)/2
         gam = (lam - 1)/lam_nx
         lam = lam_nx
-        logger.debug(
-            f"iteration {t} [ best objective ] {f_best} [ step size ] {alpha}")
 
         alpha = lin_search((1+gam)*x - gam*y, -(1+gam) *
                            objective.grad(x), objective, alpha=alpha, method=method)
+        if result.post_process_per_iter(x, x, t):
+            break
 
-    return f_best, x_best
+    return result

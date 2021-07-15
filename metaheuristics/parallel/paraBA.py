@@ -9,6 +9,7 @@ from multiprocessing import Pool
 
 import numpy as np
 from utils import numpy_to_value, setup_logger, value_to_numpy
+from utils.common import FunctionWrapper, ResultManager
 
 logger = setup_logger(__name__)
 
@@ -83,8 +84,9 @@ def init(_x, _x_share, _v, _r, _r0, _f, _A, _f_min, _f_max, _sel_max, _alpha, _g
     best_x = _best_x
 
 
-def optimize(dimension, num_population, objective, max_iter, f_min=0,
-             f_max=100, selection_max=10, alpha=0.9, gamma=0.9, num_cpu=None):
+def optimize(dimension, objective, max_iter, num_population=100, f_min=0,
+             f_max=100, selection_max=10, alpha=0.9, gamma=0.9, num_cpu=None, *args, **kwargs):
+    objective = FunctionWrapper(objective, *args, **kwargs)
     x = np.random.uniform(*objective.boundaries, size=num_population*dimension)
     x_share = numpy_to_value(x, ctypes.c_double)
     v = numpy_to_value(np.random.random(
@@ -103,10 +105,9 @@ def optimize(dimension, num_population, objective, max_iter, f_min=0,
             best_x = x[i*dimension:(i+1)*dimension].copy()
     obj_bests = numpy_to_value(
         np.array([obj_best]*num_population), ctypes.c_double)
-    pos1 = []
-    pos2 = []
-    best_pos1 = []
-    best_pos2 = []
+    result = ResultManager(objective, __name__, logger, *args, **kwargs)
+    result.post_process_per_iter(
+        x.reshape(num_population, dimension), best_x.reshape((dimension, 1)), -1)
     with Pool(num_cpu, initializer=init, initargs=(x, x_share, v, r, r0, f, A, f_min, f_max, selection_max, alpha, gamma, obj_bests, objective, best_x)) as p:
         for t in range(max_iter):
             p.starmap(step, [(i, t)
@@ -123,14 +124,9 @@ def optimize(dimension, num_population, objective, max_iter, f_min=0,
 
             x = list(x.reshape(num_population, dimension))
             x.sort(key=lambda s: objective(s))
-            x = np.array(x).reshape(num_population*dimension)
+            x = np.array(x)
+            if result.post_process_per_iter(x, best_x.reshape((dimension, 1)), t):
+                break
+            x = x.reshape(num_population*dimension)
 
-            pos1.append([x[i*dimension:(i+1)*dimension][0]
-                        for i in range(num_population)])
-            pos2.append([x[i*dimension:(i+1)*dimension][1]
-                        for i in range(num_population)])
-            best_pos1.append(best_x[0])
-            best_pos2.append(best_x[1])
-            logger.debug(f"iteration {t} [ best objective ] {obj_best}")
-
-    return best_x, obj_best, (pos1, pos2, best_pos1, best_pos2)
+    return result

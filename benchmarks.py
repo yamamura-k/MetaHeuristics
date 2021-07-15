@@ -1,6 +1,6 @@
 import numpy as np
 
-from base import Function, gen_matrix
+from utils.base import Function, gen_matrix
 
 """
 Reference : https://qiita.com/nabenabe0928/items/08ed6495853c3dd08f1e

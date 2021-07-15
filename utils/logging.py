@@ -7,7 +7,8 @@ class setupLogger:
     def __init__(self):
         """Return a logger with a ColoredFormatter."""
         self.formatter = ColoredFormatter(
-            "%(log_color)s%(levelname)s:%(pathname)s:%(funcName)s(%(lineno)s):%(message)s",
+            # "%(log_color)s%(levelname)s:%(pathname)s:%(funcName)s(%(lineno)s):%(message)s",
+            "%(log_color)s%(levelname)s:%(name)s::%(funcName)s(%(lineno)s):%(message)s",
             datefmt=None,
             reset=True,
             log_colors={

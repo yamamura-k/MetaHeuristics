@@ -9,6 +9,7 @@ from multiprocessing import Pool
 
 import numpy as np
 from utils import numpy_to_value, setup_logger, value_to_numpy, value_to_numpy2
+from utils.common import FunctionWrapper, ResultManager
 
 logger = setup_logger(__name__)
 
@@ -59,10 +60,9 @@ def init(_x, _v, _cnt, x_share_, v_share_, cnt_share_, _objective):
     cnt_share = cnt_share_
 
 
-def optimize(dimension, num_population, objective,
-             max_iter, max_visit=10, num_cpu=None):
-    best_obj = np.inf
-    best_x = None
+def optimize(dimension, objective, max_iter, max_visit=10,
+             num_population=100, num_cpu=None, *args, **kwargs):
+    objective = FunctionWrapper(objective, *args, **kwargs)
     # step1 : initialization
     x = np.random.uniform(*objective.boundaries, size=num_population*dimension)
     v = np.array([objective(x[i*dimension:(i+1)*dimension])
@@ -73,10 +73,7 @@ def optimize(dimension, num_population, objective,
     v_share = numpy_to_value(v, ctypes.c_double)
     cnt_share = numpy_to_value(cnt, ctypes.c_int, 0)
 
-    pos1 = []
-    pos2 = []
-    best_pos1 = []
-    best_pos2 = []
+    result = ResultManager(objective, __name__, logger, *args, **kwargs)
 
     with Pool(num_cpu, initializer=init,
               initargs=(x, v, cnt, x_share,
@@ -84,7 +81,6 @@ def optimize(dimension, num_population, objective,
 
         for t in range(1, max_iter+1):
             # employed bees
-            # result = p.map_async(update, all_candidates)
             p.map(update, all_candidates)
 
             # onlooker bees
@@ -114,19 +110,9 @@ def optimize(dimension, num_population, objective,
             v = value_to_numpy(v_share)
 
             m = np.min(v)
-            pos = [x[i*dimension:(i+1)*dimension]
-                   for i in range(num_population)]
-            pos1.append([t[0] for t in pos])
-            pos2.append([t[1] for t in pos])
-            best_pos = np.where(v == m)[0]
-            for best_idx in best_pos:
-                best_x_ = x[best_idx*dimension:(best_idx+1)*dimension]
-                best_pos1.append(best_x_[0])
-                best_pos2.append(best_x_[1])
-            if m < best_obj:
-                best_obj = m
-                best_x = best_x_.copy()
+            best_idx = np.where(v == m)[0][0]
+            if result.post_process_per_iter(x.reshape(
+                    num_population, dimension), x[best_idx*dimension:(best_idx+1)*dimension], t):
+                break
 
-            logger.debug(f"iteration {t} [ best objective ] {best_obj}")
-
-    return best_x, best_obj, (pos1, pos2, best_pos1, best_pos2)
+    return result

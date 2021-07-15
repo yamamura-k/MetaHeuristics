@@ -3,13 +3,14 @@ import time
 import nelder_mead as NM
 from benchmarks import (ackley, different_power, griewank, k_tablet,
                         rosenbrock, sphere, styblinski, weighted_sphere)
-from metaheuristics import ABC, BA, GWO
+from grad_based import CG, GD, NV
+from metaheuristics import ABC, BA, GWO, paraABC, paraBA
 from utils import setup_logger
 
 
 def main():
-    dimension = 2
-    num_population = 50
+    dimension = 10
+    num_population = 200
     max_iter = 20
     sep = "-"*112+"\n"
     sep_short = "-"*26+"\n"
@@ -21,7 +22,7 @@ def main():
     bench_funcs = [
         ackley(), sphere(), rosenbrock(), styblinski(dimension), k_tablet(),
         weighted_sphere(), different_power(), griewank()]
-    algorithms = [ABC, BA, GWO, NM]
+    algorithms = [paraABC, paraBA, ABC, BA, GWO, NM, CG, GD, NV]
     L = len(bench_funcs)
     AL = len(algorithms)
     for algo in algorithms:
@@ -29,16 +30,26 @@ def main():
         times = 0
         plot_time = 0
         for f in bench_funcs:
+            options = dict(
+                num_population=num_population,
+                method="armijo",
+                num_cpu=2,
+                EXP=True,
+                grad=f.grad,
+                lb=f.boundaries[0],
+                ub=f.boundaries[1],
+                opt=f.opt,
+                name=f.name,
+            )
             stime = time.time()
-            position, best, logs = algo.optimize(
-                dimension, num_population, f, max_iter)
+            tmp = algo.optimize(
+                dimension, f, max_iter, **options)
+            best = tmp.best_obj
             etime = time.time()
             result = f"| {f.name:55} | {f.opt:12.2f} | {best:12.2f} | {etime-stime:8.3f} | {algo.__name__:9}"
             results.append(result)
             times += etime - stime
-            if logs is None:
-                continue
-            # f.plot(*logs, algo_name=str(dimension)+"."+algo.__name__)
+            # tmp.plot()
             plot_time += time.time() - etime
         print(
             "finish!", f"total {times:.3f} ms, average {times / L:.3f} ms, plot {plot_time:.3f} ms")
