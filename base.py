@@ -2,9 +2,14 @@ from abc import ABCMeta, abstractmethod
 
 import numpy as np
 
+from utils import setup_logger
+
 
 def gen_matrix(m, n):
     return np.random.randn(m, n)
+
+
+logger = setup_logger(__name__)
 
 
 class Function(metaclass=ABCMeta):
@@ -24,7 +29,8 @@ class Function(metaclass=ABCMeta):
     @boundaries.getter
     def boundaries(self):
         if self.__boundaries is None:
-            self.boundaries = (-np.inf, np.inf)
+            bound = 1e9
+            self.boundaries = (-bound, bound)
         return self.__boundaries
 
     @boundaries.setter
@@ -34,6 +40,7 @@ class Function(metaclass=ABCMeta):
     def grad(self, x):
         """approximate gradient
         """
+        logger.warning("Use approximate gradient.")
         n = x.shape[0]
         h = 1e-6
         I = np.eye(n, n)*h

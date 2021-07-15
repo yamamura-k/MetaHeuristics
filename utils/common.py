@@ -27,7 +27,7 @@ def dimension_wise_diversity_measurement(x):
 
 
 class ContinuousOptResult(object):
-    def __init__(self, objective, algo_name, logger) -> None:
+    def __init__(self, objective, algo_name, logger, limit=10) -> None:
         super().__init__()
         self.objective = objective
         self.algo_name = algo_name
@@ -35,6 +35,8 @@ class ContinuousOptResult(object):
 
         self.best_obj = np.inf
         self.best_x = None
+        self.not_updated = 0
+        self.limit = limit
 
         self.pos1 = []
         self.pos2 = []
@@ -58,6 +60,9 @@ class ContinuousOptResult(object):
         if tmp_obj < self.best_obj:
             self.best_obj = tmp_obj
             self.best_x = best_x.copy()
+            self.not_updated = 0
+        else:
+            self.not_updated += 1
 
         div = dimension_wise_diversity_measurement(x)
         self.div_max = max(self.div_max, div)
@@ -69,6 +74,12 @@ class ContinuousOptResult(object):
         self.logger.debug(f"XPL is {div/self.div_max * 100}")
         self.logger.debug(
             f"XPT is {abs(div - self.div_max)/self.div_max * 100}")
+
+        if self.not_updated > self.limit:
+            self.not_updated = 0
+            x = randomize(x.shape, self.objective)
+            self.logger.warning(
+                "Randomize each population for diversification")
 
     def plot(self, save_dir="./images"):
         if len(self.pos1) == 0:
