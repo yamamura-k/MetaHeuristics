@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 
 import numpy as np
 
-from utils import setup_logger
+from utils.logging import setup_logger
 
 
 def gen_matrix(m, n):
@@ -14,8 +14,8 @@ logger = setup_logger(__name__)
 
 class Function(metaclass=ABCMeta):
     def __init__(self):
-        self.name = None
-        self.opt = None
+        self.name = "function"
+        self.opt = -np.inf
         self.__boundaries = None
 
     @abstractmethod
@@ -41,6 +41,7 @@ class Function(metaclass=ABCMeta):
         """approximate gradient
         """
         logger.warning("Use approximate gradient.")
+        self._projection(x)
         n = x.shape[0]
         h = 1e-6
         I = np.eye(n, n)*h

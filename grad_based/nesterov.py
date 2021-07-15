@@ -1,11 +1,13 @@
 import numpy as np
-from utils import lin_search, setup_logger
-from utils.common import ContinuousOptResult
+from utils import lin_search, randomize, setup_logger
+from utils.common import FunctionWrapper, ResultManager
 
 logger = setup_logger(__name__)
 
 
-def optimize(x, objective, max_iter, alpha=1e-4, method="exact", *args, **kwargs):
+def optimize(dimension, objective, max_iter, alpha=1e-4, method="exact", *args, **kwargs):
+    objective = FunctionWrapper(objective, *args, **kwargs)
+    x = randomize((dimension, 1), objective)
     try:
         objective.grad(x)
     except NotImplementedError:
@@ -15,7 +17,7 @@ def optimize(x, objective, max_iter, alpha=1e-4, method="exact", *args, **kwargs
     lam_nx = None
     gam = -1
     y = x.copy()
-    result = ContinuousOptResult(objective, "NV", logger)
+    result = ResultManager(objective, "NV", logger, *args, **kwargs)
     result.post_process_per_iter(x, x, -1)
 
     for t in range(max_iter):
@@ -30,6 +32,7 @@ def optimize(x, objective, max_iter, alpha=1e-4, method="exact", *args, **kwargs
 
         alpha = lin_search((1+gam)*x - gam*y, -(1+gam) *
                            objective.grad(x), objective, alpha=alpha, method=method)
-        result.post_process_per_iter(x, x, t)
+        if result.post_process_per_iter(x, x, t):
+            break
 
     return result

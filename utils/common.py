@@ -1,8 +1,11 @@
 import os
+from typing import Callable
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
+
+from utils.base import Function
 
 
 def randomize(shape, objective):
@@ -26,8 +29,42 @@ def dimension_wise_diversity_measurement(x):
     return div
 
 
-class ContinuousOptResult(object):
-    def __init__(self, objective, algo_name, logger, limit=10) -> None:
+class FunctionWrapper(Function):
+    def __init__(self, objective, grad=None, hesse=None, lb=None, ub=None, opt=None, name=None, *args, **kwargs):
+        super().__init__()
+        assert isinstance(objective, Callable)
+        assert (grad is None) or isinstance(grad, Callable)
+        assert (hesse is None) or isinstance(hesse, Callable)
+        self.objective = objective
+        self._grad = grad
+        self._hesse = hesse
+        self.boundaries = (lb, ub)
+        if opt is not None:
+            self.opt = opt
+        if name is not None:
+            self.name = name
+
+    def __call__(self, x):
+        self._projection(x)
+        return self.objective(x)
+
+    def grad(self, x):
+        self._projection(x)
+        if self._grad is None:
+            return super().grad(x)
+        else:
+            return self._grad(x)
+
+    def hesse(self, x):
+        self._projection(x)
+        if self._hesse is None:
+            return super().hesse(x)
+        else:
+            return self._hesse(x)
+
+
+class ResultManager(object):
+    def __init__(self, objective, algo_name, logger, limit=np.inf, EXP=False, *args, **kwargs) -> None:
         super().__init__()
         self.objective = objective
         self.algo_name = algo_name
@@ -37,11 +74,12 @@ class ContinuousOptResult(object):
         self.best_x = None
         self.not_updated = 0
         self.limit = limit
+        self.optimal = False
 
-        self.pos1 = []
-        self.pos2 = []
-        self.best_pos1 = []
-        self.best_pos2 = []
+        self.EXP = EXP
+
+        self.pos = []
+        self.best_pos = []
 
         self.div_max = -1
         self.divs = []
@@ -49,12 +87,9 @@ class ContinuousOptResult(object):
 
     def post_process_per_iter(self, x, best_x, iteration):
         assert len(x.shape) == 2
-        _, dimension = x.shape
-        if dimension == 2:
-            self.pos1.append(x[:, 0].tolist())
-            self.pos2.append(x[:, 1].tolist())
-            self.best_pos1.append(best_x[0])
-            self.best_pos2.append(best_x[1])
+        if not self.EXP:
+            self.pos.append(x)
+            self.best_pos.append(best_x)
 
         tmp_obj = np.asscalar(self.objective(best_x))
         if tmp_obj < self.best_obj:
@@ -81,11 +116,24 @@ class ContinuousOptResult(object):
             self.logger.warning(
                 "Randomize each population for diversification")
 
+        if np.isclose(self.best_obj, self.objective.opt):
+            self.logger.info("Optimal solution is found.")
+            self.optimal = True
+            return True
+
+        return False
+
     def plot(self, save_dir="./images"):
-        if len(self.pos1) == 0:
+        if len(self.pos) == 0:
             self.logger.warning(
                 "No infomation is stored. Cannot create animation.")
             return
+        self.pos = np.asarray(self.pos)
+        self.best_pos = np.asarray(self.best_pos)
+        _iter, a, b = self.pos.shape
+        if b == 1 and a > 1:
+            self.pos = self.pos.reshape((_iter, b, a))
+
         fig = plt.figure()
         boundaries = list(self.objective.boundaries)
         func_y = []
@@ -108,13 +156,13 @@ class ContinuousOptResult(object):
             plt.cla()
             plt.imshow(func_y, interpolation="nearest",
                        cmap="jet", extent=extent)
-            plt.plot(self.pos1[i], self.pos2[i], 'o', color="orange",
+            plt.plot(self.pos[i][:, 0], self.pos[i][:, 1], 'o', color="orange",
                      markeredgecolor="black")
-            plt.plot(self.best_pos1[i], self.best_pos2[i], 'o',
+            plt.plot(self.best_pos[i][0], self.best_pos[i][1], 'o',
                      color="red", markeredgecolor="black")
             plt.title('step={}'.format(i))
 
-        ani = animation.FuncAnimation(fig, plot, len(self.pos1), interval=200)
+        ani = animation.FuncAnimation(fig, plot, len(self.pos), interval=200)
         os.makedirs(save_dir, exist_ok=True)
         ani.save(
             f"{save_dir}/{self.objective.name}_{self.algo_name}.gif", writer="pillow")

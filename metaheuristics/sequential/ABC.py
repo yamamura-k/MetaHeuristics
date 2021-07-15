@@ -5,12 +5,13 @@ Reference : https://link.springer.com/content/pdf/10.1007/s10898-007-9149-x.pdf
 """
 import numpy as np
 from utils import randomize, setup_logger
-from utils.common import ContinuousOptResult
+from utils.common import FunctionWrapper, ResultManager
 
 logger = setup_logger(__name__)
 
 
-def optimize(dimension, num_population, objective, max_iter, max_visit=10):
+def optimize(dimension, objective, max_iter, max_visit=10, num_population=100, *args, **kwargs):
+    objective = FunctionWrapper(objective, *args, **kwargs)
     # step1 : initialization
     x = randomize((num_population, dimension), objective)
     all_candidates = np.arange(num_population)
@@ -39,7 +40,7 @@ def optimize(dimension, num_population, objective, max_iter, max_visit=10):
                 v[i] = v_new
                 cnt[i] = 1
 
-    result = ContinuousOptResult(objective, "ABC", logger)
+    result = ResultManager(objective, "ABC", logger, *args, **kwargs)
     m = np.min(v)
     best_pos = np.where(v == m)
     result.post_process_per_iter(x, x[best_pos][0], -1)
@@ -67,6 +68,7 @@ def optimize(dimension, num_population, objective, max_iter, max_visit=10):
 
         m = np.min(v)
         best_pos = np.where(v == m)
-        result.post_process_per_iter(x, x[best_pos][0], t)
+        if result.post_process_per_iter(x, x[best_pos][0], t):
+            break
 
     return result

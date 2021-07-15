@@ -1,14 +1,15 @@
 import numpy as np
 from utils import randomize, setup_logger
-from utils.common import ContinuousOptResult
+from utils.common import FunctionWrapper, ResultManager
 
 logger = setup_logger(__name__)
 
 # numpy version
 
 
-def optimize(dimension, num_population, objective, max_iter, f_min=0,
-             f_max=100, selection_max=10, alpha=0.9, gamma=0.9):
+def optimize(dimension, objective, max_iter, num_population=100, f_min=0,
+             f_max=100, selection_max=10, alpha=0.9, gamma=0.9, *args, **kwargs):
+    objective = FunctionWrapper(objective, *args, **kwargs)
     x = randomize((num_population, dimension), objective)
     v = np.random.random((num_population, dimension))
     f = np.random.uniform(f_min, f_max, size=num_population)
@@ -24,7 +25,7 @@ def optimize(dimension, num_population, objective, max_iter, f_min=0,
             obj_best = obj_tmp
             best_x = x[i].copy()
 
-    result = ContinuousOptResult(objective, "BA", logger)
+    result = ResultManager(objective, "BA", logger, *args, **kwargs)
     result.post_process_per_iter(x, best_x, -1)
 
     for step in range(max_iter):
@@ -71,15 +72,16 @@ def optimize(dimension, num_population, objective, max_iter, f_min=0,
         r = r0 * (1-np.exp(-gamma*step))
         A *= alpha
 
-        result.post_process_per_iter(x, best_x, step)
+        if result.post_process_per_iter(x, best_x, step):
+            break
 
     return result
 
 # slower version
 
 
-def _optimize(dimension, num_population, objective, max_iter, f_min=0,
-              f_max=100, selection_max=10, alpha=0.9, gamma=0.9):
+def _optimize(dimension, objective, max_iter, num_population=100, f_min=0,
+              f_max=100, selection_max=10, alpha=0.9, gamma=0.9, *args, **kwargs):
     x = randomize((num_population, dimension), objective)
     v = np.random.random((num_population, dimension))
     f = np.random.uniform(f_min, f_max, size=num_population)
@@ -95,7 +97,7 @@ def _optimize(dimension, num_population, objective, max_iter, f_min=0,
             obj_best = obj_tmp
             best_x = x[i].copy()
 
-    result = ContinuousOptResult(objective, "BA", logger)
+    result = ResultManager(objective, "BA", logger, *args, **kwargs)
     result.post_process_per_iter(x, best_x, -1)
 
     for step in range(max_iter):
@@ -138,6 +140,7 @@ def _optimize(dimension, num_population, objective, max_iter, f_min=0,
             x.sort(key=lambda s: objective(s))
             x = np.array(x)
 
-        result.post_process_per_iter(x, best_x, step)
+        if result.post_process_per_iter(x, best_x, step):
+            return
 
     return result

@@ -1,11 +1,12 @@
 import numpy as np
 from utils import randomize, setup_logger
-from utils.common import ContinuousOptResult
+from utils.common import FunctionWrapper, ResultManager
 
 logger = setup_logger(__name__)
 
 
-def optimize(dimension, num_population, objective, max_iter, top_k=3, *args, **kwargs):
+def optimize(dimension, objective, max_iter, num_population=100, top_k=3, *args, **kwargs):
+    objective = FunctionWrapper(objective, *args, **kwargs)
     x = randomize((num_population, dimension), objective)
     obj_vals = np.array([objective(t) for t in x])
     lis = np.argsort(obj_vals)
@@ -24,7 +25,7 @@ def optimize(dimension, num_population, objective, max_iter, top_k=3, *args, **k
     A_s = np.broadcast_to(A, X_s.shape).copy()
     C_s = np.broadcast_to(C, X_s.shape).copy()
 
-    result = ContinuousOptResult(objective, "GWO", logger)
+    result = ResultManager(objective, "GWO", logger, *args, **kwargs)
     result.post_process_per_iter(x, best_x[0], -1)
 
     for t in range(max_iter):
@@ -47,6 +48,7 @@ def optimize(dimension, num_population, objective, max_iter, top_k=3, *args, **k
             A_s[i] = np.broadcast_to(A, (dimension,)).copy()
             C_s[i] = np.broadcast_to(C, (dimension,)).copy()
 
-        result.post_process_per_iter(x, best_x[0], t)
+        if result.post_process_per_iter(x, best_x[0], t):
+            break
 
     return result

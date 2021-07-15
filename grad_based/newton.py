@@ -1,11 +1,13 @@
 import numpy as np
-from utils import setup_logger
-from utils.common import ContinuousOptResult
+from utils import randomize, setup_logger
+from utils.common import FunctionWrapper, ResultManager
 
 logger = setup_logger(__name__)
 
 
-def optimize(x, objective, eps=1e-20, *args, **kwargs):
+def optimize(dimension, objective, eps=1e-20, *args, **kwargs):
+    objective = FunctionWrapper(objective, *args, **kwargs)
+    x = randomize((dimension, 1), objective)
     try:
         objective.grad(x)
     except NotImplementedError:
@@ -22,7 +24,7 @@ def optimize(x, objective, eps=1e-20, *args, **kwargs):
     lam = nab.T@H_inv@nab
     d = -H_inv@nab
 
-    result = ContinuousOptResult(objective, "NW", logger)
+    result = ResultManager(objective, "NW", logger, *args, **kwargs)
     result.post_process_per_iter(x, x, -1)
 
     t = 0
@@ -35,7 +37,8 @@ def optimize(x, objective, eps=1e-20, *args, **kwargs):
         H_inv = np.linalg.inv(objective.hesse(x))
         lam = nab.T@H_inv@nab
         d = -H_inv@nab
-        result.post_process_per_iter(x, x, t)
+        if result.post_process_per_iter(x, x, t):
+            break
         t += 1
 
     return result

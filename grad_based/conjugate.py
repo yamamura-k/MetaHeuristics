@@ -5,14 +5,17 @@ References :
 - 基礎数学 IV 最適化理論
 """
 import numpy as np
+from tests.utils.common import randomize
 from utils import lin_search, setup_logger
-from utils.common import ContinuousOptResult
+from utils.common import FunctionWrapper, ResultManager
 
 logger = setup_logger(__name__)
 
 
 def getBeta(method, d, d_prev, s):
-    if method == "FR":
+    if method == "default":
+        return max(0, getBeta("PR", d, d_prev, s))
+    elif method == "FR":
         return np.float(d.T@d / d_prev.T@d_prev)
     elif method == "PR":
         return np.float(d.T@(d-d_prev) / d_prev.T@d_prev)
@@ -26,13 +29,15 @@ def getBeta(method, d, d_prev, s):
         raise NotImplementedError
 
 
-def optimize(x, objective, max_iter, method="exact", beta_method="FR", *args, **kwargs):
+def optimize(dimension, objective, max_iter, method="exact", beta_method="default", *args, **kwargs):
+    objective = FunctionWrapper(objective, *args, **kwargs)
+    x = randomize((dimension, 1), objective)
     try:
         objective.grad(x)
     except NotImplementedError:
         raise AttributeError(
             f"Gradient of {objective} is not defined.")
-    result = ContinuousOptResult(objective, "CG", logger)
+    result = ResultManager(objective, "CG", logger, *args, **kwargs)
     result.post_process_per_iter(x, x, -1)
 
     d = -objective.grad(x)
@@ -47,6 +52,7 @@ def optimize(x, objective, max_iter, method="exact", beta_method="FR", *args, **
         alpha = lin_search(x, s, objective, method=method)
         d_prev = d
 
-        result.post_process_per_iter(x, x, t)
+        if result.post_process_per_iter(x, x, t):
+            break
 
     return result
