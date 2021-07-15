@@ -5,45 +5,49 @@ from grad_based import CG, GD, NV, NW
 
 n, m = 10, 100
 func = log_exp(n=n, m=m)
-x = np.random.randn(n, 1)
-max_iter = 100
+options = dict(grad=func.grad, hesse=func.hesse)
+max_iter = 10
 
 
 def test_CG_FR():
-    CG.optimize(x.copy(), func, max_iter, beta_method="FR")
+    CG.optimize(n, func, max_iter, **options, beta_method="FR")
 
 
 def test_CG_PR():
-    CG.optimize(x.copy(), func, max_iter, beta_method="PR")
+    CG.optimize(n, func, max_iter, **options, beta_method="PR")
 
 
 def test_CG_HS():
-    CG.optimize(x.copy(), func, max_iter, beta_method="HS")
+    CG.optimize(n, func, max_iter, **options, beta_method="HS")
 
 
 def test_CG_DY():
-    CG.optimize(x.copy(), func, max_iter, beta_method="DY")
+    CG.optimize(n, func, max_iter, **options, beta_method="DY")
 
 
 def test_CG_heuristic():
-    CG.optimize(x.copy(), func, max_iter, beta_method="heuristic")
+    CG.optimize(n, func, max_iter, **options, beta_method="heuristic")
+
+
+def test_CG_default():
+    CG.optimize(n, func, max_iter, **options, beta_method="default")
 
 
 def test_GD_static():
-    GD.optimize(x.copy(), func, max_iter, method="static")
+    GD.optimize(n, func, max_iter, **options, method="static")
 
 
 def test_GD_armijo():
-    GD.optimize(x.copy(), func, max_iter, method="armijo")
+    GD.optimize(n, func, max_iter, **options, method="armijo")
 
 
 def test_GD_exact():
-    GD.optimize(x.copy(), func, max_iter, method="exact")
+    GD.optimize(n, func, max_iter, **options, method="exact")
 
 
 def test_NV():
-    NV.optimize(x.copy(), func, max_iter)
+    NV.optimize(n, func, max_iter, **options)
 
 
 def test_NW():
-    NW.optimize(x.copy(), func)
+    NW.optimize(n, func, **options)

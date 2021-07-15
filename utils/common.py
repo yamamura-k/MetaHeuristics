@@ -38,7 +38,8 @@ class FunctionWrapper(Function):
         self.objective = objective
         self._grad = grad
         self._hesse = hesse
-        self.boundaries = (lb, ub)
+        if (ub is not None) and (lb is not None):
+            self.boundaries = (lb, ub)
         if opt is not None:
             self.opt = opt
         if name is not None:
