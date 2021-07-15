@@ -5,9 +5,8 @@ References :
 - 基礎数学 IV 最適化理論
 """
 import numpy as np
-from tests.utils.common import randomize
 from utils import lin_search, setup_logger
-from utils.common import FunctionWrapper, ResultManager
+from utils.common import FunctionWrapper, ResultManager, randomize
 
 logger = setup_logger(__name__)
 
