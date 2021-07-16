@@ -8,7 +8,7 @@ import numpy as np
 from utils.base import Function
 
 
-def getInintialPoint(shape, objective, method="random"):
+def getInintialPoint(shape, objective, method="random", *args, **kwargs):
     if method == "random":
         try:
             return np.random.uniform(*objective.boundaries, size=shape)
@@ -33,7 +33,7 @@ def dimension_wise_diversity_measurement(x):
 
 
 class FunctionWrapper(Function):
-    def __init__(self, objective, grad=None, hesse=None, lb=None, ub=None, opt=None, name=None, *args, **kwargs):
+    def __init__(self, objective, grad=None, hesse=None, lb=None, ub=None, opt=None, name=None, maximize=False, *args, **kwargs):
         super().__init__()
         assert isinstance(objective, Callable)
         assert (grad is None) or isinstance(grad, Callable)
@@ -41,6 +41,7 @@ class FunctionWrapper(Function):
         self.objective = objective
         self._grad = grad
         self._hesse = hesse
+        self.sign = -1 if maximize else 1
         if (ub is not None) and (lb is not None):
             self.boundaries = (lb, ub)
         if opt is not None:
@@ -50,21 +51,21 @@ class FunctionWrapper(Function):
 
     def __call__(self, x):
         self._projection(x)
-        return self.objective(x)
+        return self.sign*self.objective(x)
 
     def grad(self, x):
         self._projection(x)
         if self._grad is None:
-            return super().grad(x)
+            return self.sign*super().grad(x)
         else:
-            return self._grad(x)
+            return self.sign*self._grad(x)
 
     def hesse(self, x):
         self._projection(x)
         if self._hesse is None:
-            return super().hesse(x)
+            return self.sign*super().hesse(x)
         else:
-            return self._hesse(x)
+            return self.sign*self._hesse(x)
 
 
 class ResultManager(object):

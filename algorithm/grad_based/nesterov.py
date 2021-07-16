@@ -1,12 +1,11 @@
 import numpy as np
-from utils import lin_search, getInintialPoint, setup_logger
-from utils.common import FunctionWrapper, ResultManager
+from utils import getInintialPoint, lin_search, setup_logger
+from utils.common import ResultManager
 
 logger = setup_logger(__name__)
 
 
 def minimize(dimension, objective, max_iter, alpha=1e-4, method="exact", *args, **kwargs):
-    objective = FunctionWrapper(objective, *args, **kwargs)
     x = getInintialPoint((dimension, 1), objective)
     try:
         objective.grad(x)

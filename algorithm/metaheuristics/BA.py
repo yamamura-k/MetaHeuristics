@@ -1,6 +1,6 @@
 import numpy as np
 from utils import getInintialPoint, setup_logger
-from utils.common import FunctionWrapper, ResultManager
+from utils.common import ResultManager
 
 logger = setup_logger(__name__)
 
@@ -9,7 +9,6 @@ logger = setup_logger(__name__)
 
 def minimize(dimension, objective, max_iter, num_population=100, f_min=0,
              f_max=100, selection_max=10, alpha=0.9, gamma=0.9, *args, **kwargs):
-    objective = FunctionWrapper(objective, *args, **kwargs)
     x = getInintialPoint((num_population, dimension), objective)
     v = np.random.random((num_population, dimension))
     f = np.random.uniform(f_min, f_max, size=num_population)

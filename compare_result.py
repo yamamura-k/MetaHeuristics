@@ -1,10 +1,8 @@
 import time
 
-import nelder_mead as NM
+from algorithm import optimize
 from benchmarks import (ackley, different_power, griewank, k_tablet,
                         rosenbrock, sphere, styblinski, weighted_sphere)
-from grad_based import CG, GD, NV
-from metaheuristics import ABC, BA, GWO, paraABC, paraBA
 from utils import setup_logger
 
 
@@ -22,11 +20,12 @@ def main():
     bench_funcs = [
         ackley(), sphere(), rosenbrock(), styblinski(dimension), k_tablet(),
         weighted_sphere(), different_power(), griewank()]
-    algorithms = [paraABC, paraBA, ABC, BA, GWO, NM, CG, GD, NV]
+    algorithms = ["paraABC", "paraBA", "ABC",
+                  "BA", "GWO", "NM", "CG", "GD", "NV"]
     L = len(bench_funcs)
     AL = len(algorithms)
     for algo in algorithms:
-        print(algo.__name__, "is running ...")
+        print(algo, "is running ...")
         times = 0
         plot_time = 0
         for f in bench_funcs:
@@ -42,11 +41,11 @@ def main():
                 name=f.name,
             )
             stime = time.time()
-            tmp = algo.minimize(
-                dimension, f, max_iter, **options)
+            tmp = optimize(
+                dimension, f, max_iter, algo=algo, **options)
             best = tmp.best_obj
             etime = time.time()
-            result = f"| {f.name:55} | {f.opt:12.2f} | {best:12.2f} | {etime-stime:8.3f} | {algo.__name__:9}"
+            result = f"| {f.name:55} | {f.opt:12.2f} | {best:12.2f} | {etime-stime:8.3f} | {algo:9}"
             results.append(result)
             times += etime - stime
             # tmp.plot()
