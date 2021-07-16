@@ -112,9 +112,9 @@ class ResultManager(object):
             message.append(f"[ beta ] {beta}")
         if alpha is not None:
             message.append(f"[ alpha ] {alpha}")
-        self.logger.debug(" ".join(message))
-        self.logger.debug(f"XPL is {div/self.div_max * 100}")
-        self.logger.debug(
+        self.logger.info(" ".join(message))
+        self.logger.info(f"XPL is {div/self.div_max * 100}")
+        self.logger.info(
             f"XPT is {abs(div - self.div_max)/self.div_max * 100}")
         if alpha is not None and alpha == 0:
             x = getInintialPoint(x.shape, self.objective)
