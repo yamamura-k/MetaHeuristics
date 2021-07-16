@@ -1,13 +1,13 @@
 import numpy as np
 
-from utils import randomize, setup_logger
+from utils import getInintialPoint, setup_logger
 from utils.common import ResultManager
 
 logger = setup_logger(__name__)
 
 
-def optimize(dimension, objective, max_iter, alpha=1, gamma=2, rho=0.5, sigma=0.5, *args, **kwargs):
-    x = randomize((dimension,), objective)
+def minimize(dimension, objective, max_iter, alpha=1, gamma=2, rho=0.5, sigma=0.5, *args, **kwargs):
+    x = getInintialPoint((dimension,), objective)
     best_x = None
     best_obj = np.inf
 

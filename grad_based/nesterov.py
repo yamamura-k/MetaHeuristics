@@ -1,13 +1,13 @@
 import numpy as np
-from utils import lin_search, randomize, setup_logger
+from utils import lin_search, getInintialPoint, setup_logger
 from utils.common import FunctionWrapper, ResultManager
 
 logger = setup_logger(__name__)
 
 
-def optimize(dimension, objective, max_iter, alpha=1e-4, method="exact", *args, **kwargs):
+def minimize(dimension, objective, max_iter, alpha=1e-4, method="exact", *args, **kwargs):
     objective = FunctionWrapper(objective, *args, **kwargs)
-    x = randomize((dimension, 1), objective)
+    x = getInintialPoint((dimension, 1), objective)
     try:
         objective.grad(x)
     except NotImplementedError:
@@ -32,7 +32,7 @@ def optimize(dimension, objective, max_iter, alpha=1e-4, method="exact", *args, 
 
         alpha = lin_search((1+gam)*x - gam*y, -(1+gam) *
                            objective.grad(x), objective, alpha=alpha, method=method)
-        if result.post_process_per_iter(x, x, t):
+        if result.post_process_per_iter(x, x, t, alpha=alpha):
             break
 
     return result

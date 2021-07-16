@@ -67,7 +67,7 @@ namespace ABC
       }
    }
    template<typename T>
-   double optimize(int const dimension, int const num_population, int const max_visit, int const max_step, Func<T> f)
+   double minimize(int const dimension, int const num_population, int const max_visit, int const max_step, Func<T> f)
    {
       std::vector<ublas::vector<T>> x(num_population);
       std::vector<int> intervals(num_population);

@@ -8,7 +8,7 @@ double sphere(ublas::vector<double> const x)
 
 int main()
 {
-   double opt = ABC::optimize<double>(2, 10, 5, 30, sphere);
+   double opt = ABC::minimize<double>(2, 10, 5, 30, sphere);
    std::cout << opt << std::endl;
    return 0;
 }

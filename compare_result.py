@@ -42,7 +42,7 @@ def main():
                 name=f.name,
             )
             stime = time.time()
-            tmp = algo.optimize(
+            tmp = algo.minimize(
                 dimension, f, max_iter, **options)
             best = tmp.best_obj
             etime = time.time()

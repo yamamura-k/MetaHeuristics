@@ -16,36 +16,36 @@ bench_funcs = [
 
 def test_ABC():
     for f in bench_funcs:
-        result = ABC.optimize(
+        result = ABC.minimize(
             dimension, f, max_iter, num_population=num_population)
         check_grad(result.best_x, f)
 
 
 def test_paraABC():
     for f in bench_funcs:
-        result = paraABC.optimize(
+        result = paraABC.minimize(
             dimension, f, max_iter, num_population=num_population, num_cpu=1)
 
 
 def test_BA():
     for f in bench_funcs:
-        result = BA.optimize(
+        result = BA.minimize(
             dimension, f, max_iter, num_population=num_population)
 
 
 def test_GWO():
     for f in bench_funcs:
-        result = GWO.optimize(
+        result = GWO.minimize(
             dimension, f, max_iter, num_population=num_population)
 
 
 def test_NM():
     for f in bench_funcs:
-        result = NM.optimize(
+        result = NM.minimize(
             dimension, f, max_iter, num_population=num_population)
 
 
 def test_paraBA():
     for f in bench_funcs:
-        result = paraBA.optimize(
+        result = paraBA.minimize(
             dimension, f, max_iter, num_population=num_population, num_cpu=1)
