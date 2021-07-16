@@ -52,7 +52,7 @@ Python and C++ implementation of several metaheuristic algorithms.
 | paraABC.py  | Implementation of parallel Artificial Bee Colony algorithm                  |
 | BA.py       | Implementation of sequential Bat algorithm                                  |
 | paraBA.py   | Implementation of parallel Bat algorithm                                    |
-| GWO.py      | Implementation of sequential Gray Wolf Optimizer algorithm(under develop)   |
+| GWO.py      | Implementation of sequential Gray Wolf minimizer algorithm(under develop)   |
 | cpp/ABC.cpp | Implementation of sequential Artificial Bee Colony algorithm                |
 
 #### gradient based algorithms

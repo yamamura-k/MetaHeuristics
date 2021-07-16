@@ -8,11 +8,14 @@ import numpy as np
 from utils.base import Function
 
 
-def randomize(shape, objective):
-    try:
-        return np.random.uniform(*objective.boundaries, size=shape)
-    except AttributeError:
-        return np.random.random(size=shape)
+def getInintialPoint(shape, objective, method="random", *args, **kwargs):
+    if method == "random":
+        try:
+            return np.random.uniform(*objective.boundaries, size=shape)
+        except AttributeError:
+            return np.random.random(size=shape)
+    else:
+        return np.zeros(shape=shape)
 
 
 def dimension_wise_diversity_measurement(x):
@@ -30,7 +33,7 @@ def dimension_wise_diversity_measurement(x):
 
 
 class FunctionWrapper(Function):
-    def __init__(self, objective, grad=None, hesse=None, lb=None, ub=None, opt=None, name=None, *args, **kwargs):
+    def __init__(self, objective, grad=None, hesse=None, lb=None, ub=None, opt=None, name=None, maximize=False, *args, **kwargs):
         super().__init__()
         assert isinstance(objective, Callable)
         assert (grad is None) or isinstance(grad, Callable)
@@ -38,6 +41,7 @@ class FunctionWrapper(Function):
         self.objective = objective
         self._grad = grad
         self._hesse = hesse
+        self.sign = -1 if maximize else 1
         if (ub is not None) and (lb is not None):
             self.boundaries = (lb, ub)
         if opt is not None:
@@ -47,21 +51,21 @@ class FunctionWrapper(Function):
 
     def __call__(self, x):
         self._projection(x)
-        return self.objective(x)
+        return self.sign*self.objective(x)
 
     def grad(self, x):
         self._projection(x)
         if self._grad is None:
-            return super().grad(x)
+            return self.sign*super().grad(x)
         else:
-            return self._grad(x)
+            return self.sign*self._grad(x)
 
     def hesse(self, x):
         self._projection(x)
         if self._hesse is None:
-            return super().hesse(x)
+            return self.sign*super().hesse(x)
         else:
-            return self._hesse(x)
+            return self.sign*self._hesse(x)
 
 
 class ResultManager(object):
@@ -86,7 +90,7 @@ class ResultManager(object):
         self.divs = []
         self.div_maxs = []
 
-    def post_process_per_iter(self, x, best_x, iteration):
+    def post_process_per_iter(self, x, best_x, iteration, beta=None, alpha=None):
         assert len(x.shape) == 2
         if not self.EXP:
             self.pos.append(x)
@@ -104,18 +108,25 @@ class ResultManager(object):
         self.div_max = max(self.div_max, div)
         self.divs.append(div)
         self.div_maxs.append(self.div_max)
-
-        self.logger.debug(
-            f"iteration {iteration} [ best objective ] {self.best_obj}")
-        self.logger.debug(f"XPL is {div/self.div_max * 100}")
-        self.logger.debug(
+        message = [f"iteration {iteration} [ best objective ] {self.best_obj}"]
+        if beta is not None:
+            message.append(f"[ beta ] {beta}")
+        if alpha is not None:
+            message.append(f"[ alpha ] {alpha}")
+        self.logger.info(" ".join(message))
+        self.logger.info(f"XPL is {div/self.div_max * 100}")
+        self.logger.info(
             f"XPT is {abs(div - self.div_max)/self.div_max * 100}")
+        if alpha is not None and alpha == 0:
+            x = getInintialPoint(x.shape, self.objective)
+            self.logger.warning(
+                "getInintialPoint current vector because alpha = 0.")
 
         if self.not_updated > self.limit:
             self.not_updated = 0
-            x = randomize(x.shape, self.objective)
+            x = getInintialPoint(x.shape, self.objective)
             self.logger.warning(
-                "Randomize each population for diversification")
+                "getInintialPoint each population for diversification")
 
         if np.isclose(self.best_obj, self.objective.opt):
             self.logger.info("Optimal solution is found.")

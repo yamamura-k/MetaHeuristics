@@ -9,7 +9,7 @@ from multiprocessing import Pool
 
 import numpy as np
 from utils import numpy_to_value, setup_logger, value_to_numpy, value_to_numpy2
-from utils.common import FunctionWrapper, ResultManager
+from utils.common import ResultManager
 
 logger = setup_logger(__name__)
 
@@ -60,9 +60,8 @@ def init(_x, _v, _cnt, x_share_, v_share_, cnt_share_, _objective):
     cnt_share = cnt_share_
 
 
-def optimize(dimension, objective, max_iter, max_visit=10,
+def minimize(dimension, objective, max_iter, max_visit=10,
              num_population=100, num_cpu=None, *args, **kwargs):
-    objective = FunctionWrapper(objective, *args, **kwargs)
     # step1 : initialization
     x = np.random.uniform(*objective.boundaries, size=num_population*dimension)
     v = np.array([objective(x[i*dimension:(i+1)*dimension])
