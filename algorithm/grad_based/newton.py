@@ -23,7 +23,7 @@ def minimize(dimension, objective, eps=1e-20, *args, **kwargs):
     lam = nab.T@H_inv@nab
     d = -H_inv@nab
 
-    result = ResultManager(objective, "NW", logger, *args, **kwargs)
+    result = ResultManager(objective, __name__, logger, *args, **kwargs)
     result.post_process_per_iter(x, x, -1)
 
     t = 0

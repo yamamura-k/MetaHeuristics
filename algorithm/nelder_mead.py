@@ -11,7 +11,7 @@ def minimize(dimension, objective, max_iter, alpha=1, gamma=2, rho=0.5, sigma=0.
     best_obj = np.inf
 
     x = np.vstack([x + np.eye(dimension), x])
-    result = ResultManager(objective, "NM", logger, *args, **kwargs)
+    result = ResultManager(objective, __name__, logger, *args, **kwargs)
     for t in range(max_iter):
         obj_vals = np.array([objective(t) for t in x])
         orders = np.argsort(obj_vals)

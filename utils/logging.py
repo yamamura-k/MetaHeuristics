@@ -24,18 +24,11 @@ class setupLogger:
         self.root_logger = logger
 
         self.setStreamHandler()
-        self.setFileHandler()
 
     def setStreamHandler(self):
         handler = StreamHandler()
         handler.setFormatter(self.formatter)
         self.root_logger.addHandler(handler)
-
-    def setFileHandler(self, filename="tmp.log", log_level=10):
-        handler = FileHandler(filename=filename)
-        handler.setLevel(log_level)
-        handler.setFormatter(self.formatter)
-        # self.root_logger.addHandler(handler)
 
     def setLevel(self, log_level):
         self.root_logger.setLevel(log_level)

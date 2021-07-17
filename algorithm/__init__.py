@@ -6,7 +6,7 @@ import algorithm.nelder_mead as nelder_mead
 
 
 def optimize(dimension, f, max_iter, algo="CG", maximize=False, *args, **kwargs):
-    """[summary]
+    """
 
     Parameters
     ----------
@@ -48,6 +48,8 @@ def optimize(dimension, f, max_iter, algo="CG", maximize=False, *args, **kwargs)
         return metaheuristics.GWO.minimize(dimension, f, max_iter, *args, **kwargs)
     elif algo == "FA":
         return metaheuristics.FA.minimize(dimension, f, max_iter, *args, **kwargs)
+    elif algo == "TLBO":
+        return metaheuristics.TLBO.minimize(dimension, f, max_iter, *args, **kwargs)
     elif algo == "NM":
         return nelder_mead.minimize(dimension, f, max_iter, *args, **kwargs)
     elif algo == "GD":
