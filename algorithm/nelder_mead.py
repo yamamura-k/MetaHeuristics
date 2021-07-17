@@ -1,13 +1,12 @@
 import numpy as np
-
-from utils import getInintialPoint, setup_logger
+from utils import getInitialPoint, setup_logger
 from utils.common import ResultManager
 
 logger = setup_logger(__name__)
 
 
 def minimize(dimension, objective, max_iter, alpha=1, gamma=2, rho=0.5, sigma=0.5, *args, **kwargs):
-    x = getInintialPoint((dimension,), objective)
+    x = getInitialPoint((dimension,), objective)
     best_x = None
     best_obj = np.inf
 

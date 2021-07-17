@@ -1,5 +1,5 @@
 import numpy as np
-from utils import getInintialPoint, setup_logger
+from utils import getInitialPoint, setup_logger
 from utils.common import ResultManager
 
 logger = setup_logger(__name__)
@@ -9,7 +9,7 @@ logger = setup_logger(__name__)
 
 def minimize(dimension, objective, max_iter, num_population=100, f_min=0,
              f_max=100, selection_max=10, alpha=0.9, gamma=0.9, *args, **kwargs):
-    x = getInintialPoint((num_population, dimension), objective)
+    x = getInitialPoint((num_population, dimension), objective)
     v = np.random.random((num_population, dimension))
     f = np.random.uniform(f_min, f_max, size=num_population)
     A = np.random.uniform(1, 2, size=num_population)
@@ -45,7 +45,7 @@ def minimize(dimension, objective, max_iter, num_population=100, f_min=0,
         x_new[idxs] = x[idx] + eps*np.average(A)
         obj_new[idxs] = np.array([objective(x_new[t]) for t in idxs[0]])
 
-        x_random = getInintialPoint((num_population, dimension), objective)
+        x_random = getInitialPoint((num_population, dimension), objective)
         obj_random = np.array([objective(t) for t in x_random])
 
         idxs1 = np.where(((obj_new == np.inf) | (obj_t > obj_new)) & (
@@ -81,7 +81,7 @@ def minimize(dimension, objective, max_iter, num_population=100, f_min=0,
 
 def _minimize(dimension, objective, max_iter, num_population=100, f_min=0,
               f_max=100, selection_max=10, alpha=0.9, gamma=0.9, *args, **kwargs):
-    x = getInintialPoint((num_population, dimension), objective)
+    x = getInitialPoint((num_population, dimension), objective)
     v = np.random.random((num_population, dimension))
     f = np.random.uniform(f_min, f_max, size=num_population)
     A = np.random.uniform(1, 2, size=num_population)
@@ -114,7 +114,7 @@ def _minimize(dimension, objective, max_iter, num_population=100, f_min=0,
                 x_new += eps * np.average(A)
                 obj_new = objective(x_new)
 
-            x_random = getInintialPoint((dimension, ), objective)
+            x_random = getInitialPoint((dimension, ), objective)
             obj_random = objective(x_random)
             if (obj_new is None or obj_t > obj_new) and obj_t > obj_random:
                 if obj_new is None or obj_new >= obj_random:

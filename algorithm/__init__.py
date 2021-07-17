@@ -17,7 +17,7 @@ def optimize(dimension, f, max_iter, algo="CG", maximize=False, *args, **kwargs)
     max_iter : int
         maximum number of iteration
     algo : str, optional
-        algorithm name, by default "CG". [ABC, BA, GWO, paraABC, paraBA, GD, CG, NV, NW, NM] is valid.
+        algorithm name, by default "CG". [ABC, BA, GWO, FA, paraABC, paraBA, GD, CG, NV, NW, NM] is valid.
     maximize : bool, optional
         When you want to solve maximization problem, it should be True, by default False
     options : dict, optional
@@ -46,6 +46,8 @@ def optimize(dimension, f, max_iter, algo="CG", maximize=False, *args, **kwargs)
         return metaheuristics.paraBA.minimize(dimension, f, max_iter, *args, **kwargs)
     elif algo == "GWO":
         return metaheuristics.GWO.minimize(dimension, f, max_iter, *args, **kwargs)
+    elif algo == "FA":
+        return metaheuristics.FA.minimize(dimension, f, max_iter, *args, **kwargs)
     elif algo == "NM":
         return nelder_mead.minimize(dimension, f, max_iter, *args, **kwargs)
     elif algo == "GD":

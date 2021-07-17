@@ -8,7 +8,7 @@ import numpy as np
 from utils.base import Function
 
 
-def getInintialPoint(shape, objective, method="random", *args, **kwargs):
+def getInitialPoint(shape, objective, method="random", *args, **kwargs):
     if method == "random":
         try:
             return np.random.uniform(*objective.boundaries, size=shape)
@@ -118,15 +118,15 @@ class ResultManager(object):
         self.logger.info(
             f"XPT is {abs(div - self.div_max)/self.div_max * 100}")
         if alpha is not None and alpha == 0:
-            x = getInintialPoint(x.shape, self.objective)
+            x = getInitialPoint(x.shape, self.objective)
             self.logger.warning(
-                "getInintialPoint current vector because alpha = 0.")
+                "getInitialPoint current vector because alpha = 0.")
 
         if self.not_updated > self.limit:
             self.not_updated = 0
-            x = getInintialPoint(x.shape, self.objective)
+            x = getInitialPoint(x.shape, self.objective)
             self.logger.warning(
-                "getInintialPoint each population for diversification")
+                "getInitialPoint each population for diversification")
 
         if np.isclose(self.best_obj, self.objective.opt):
             self.logger.info("Optimal solution is found.")
