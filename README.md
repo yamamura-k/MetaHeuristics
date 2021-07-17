@@ -2,6 +2,13 @@
 
 Python and C++ implementation of several metaheuristic algorithms.
 
+## Example
+```python
+from algorithm import optimize
+result = optimize(dimension, function, maximum_iteration, **options)
+best_solution = (result.best_obj, result.best_x)
+```
+
 ## Component
 
 ```bash
@@ -9,51 +16,57 @@ Python and C++ implementation of several metaheuristic algorithms.
 ├── LICENSE
 ├── README.md
 ├── requirements.txt
-├── base.py
-├── benchmarks.py
-├── compare_result_grad_based.py
-├── compare_result_metaheuristics.py
-├── cpp
-│   ├── ABC.cpp
-│   ├── CMakeLists.txt
-│   └── main.cpp
-├── grad_based
-│   ├── __init__.py
-│   ├── conjugate.py
-│   ├── gradient_descent.py
-│   ├── nesterov.py
-│   ├── newton.py
-│   └── utils.py
-├── metaheuristics
-│   ├── __init__.py
-│   ├── parallel
-│   │   ├── paraABC.py
+├── algorithm
+│   ├── grad_based
+│   │   ├── gradient_descent.py
+│   │   ├── newton.py
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   ├── nesterov.py
+│   │   └── conjugate.py
+│   ├── metaheuristics
+│   │   ├── GWO.py
+│   │   ├── __init__.py
 │   │   ├── paraBA.py
-│   │   └── utils.py
-│   └── sequential
-│       ├── ABC.py
-│       ├── BA.py
-│       └── GWO.py
-└── tests
-    ├── base.py -> ../base.py
-    ├── benchmarks.py -> ../benchmarks.py
-    ├── grad_based -> ../grad_based
-    ├── metaheuristics -> ../metaheuristics
-    ├── test_grad_based.py
-    └── test_metaheuristics.py
+│   │   ├── BA.py
+│   │   ├── paraABC.py
+│   │   ├── FA.py
+│   │   └── ABC.py
+│   ├── __init__.py
+│   └── nelder_mead.py
+├── utils
+│   ├── logging.py
+│   ├── grad_based.py
+│   ├── __init__.py
+│   ├── common.py
+│   ├── parallel.py
+│   └── base.py
+├── tests
+│   ├── test_all.py
+│   ├── utils -> ../utils/
+│   ├── algorithm -> ../algorithm
+│   └── benchmarks.py -> ../benchmarks.py
+├── cpp
+│   ├── CMakeLists.txt
+│   ├── ABC.cpp
+│   └── main.cpp
+├── compare_result.py
+└── benchmarks.py
 ```
 
 ### Main algorithms
 
 #### Metaheuristics
-| File        | Description                                                                 |
-| ----------- | --------------------------------------------------------------------------- |
-| ABC.py      | Implementation of sequential Artificial Bee Colony algorithm                |
-| paraABC.py  | Implementation of parallel Artificial Bee Colony algorithm                  |
-| BA.py       | Implementation of sequential Bat algorithm                                  |
-| paraBA.py   | Implementation of parallel Bat algorithm                                    |
-| GWO.py      | Implementation of sequential Gray Wolf minimizer algorithm(under develop)   |
-| cpp/ABC.cpp | Implementation of sequential Artificial Bee Colony algorithm                |
+| File           | Description                                                                 |
+| -------------- | --------------------------------------------------------------------------- |
+| ABC.py         | Implementation of sequential Artificial Bee Colony algorithm                |
+| paraABC.py     | Implementation of parallel Artificial Bee Colony algorithm                  |
+| BA.py          | Implementation of sequential Bat algorithm                                  |
+| paraBA.py      | Implementation of parallel Bat algorithm                                    |
+| GWO.py         | Implementation of sequential Gray Wolf minimizer algorithm(under develop)   |
+| FA.py          | Implementation of firefly algorithm                                         |
+| nelder_mead.py | Implementation of nelder-mead algorithm                                     |
+| cpp/ABC.cpp    | Implementation of sequential Artificial Bee Colony algorithm                |
 
 #### gradient based algorithms
 | File                     | Description                                                  |
@@ -82,11 +95,10 @@ Reference : https://qiita.com/tomitomi3/items/d4318bf7afbc1c835dda (Japanese)
 
 ### for test
 `tests/`
-| File                  | Description                         |
-| ----------------------| ----------------------------------- |
-| test_metaheuristics.py| test metaheuristics                 |
-| test_grad_based.py    | test gradient based algorithms      |
-| cpp/main.cpp          | test cpp                            |
+| File                  | Description                                       |
+| ----------------------| ------------------------------------------------- |
+| test_all.py           | test metaheuristics and gradient based algorithms |
+| cpp/main.cpp          | test cpp                                          |
 
 ### Others
 
@@ -104,3 +116,4 @@ Reference : https://qiita.com/tomitomi3/items/d4318bf7afbc1c835dda (Japanese)
 - [A powerful and efficient algorithm for numerical
 function optimization: artificial bee colony (ABC)
 algorithm](https://link.springer.com/content/pdf/10.1007/s10898-007-9149-x.pdf)
+- [Fireﬂy Algorithms for Multimodal Optimization](https://www.researchgate.net/publication/45904853_Firefly_Algorithms_for_Multimodal_Optimization)
