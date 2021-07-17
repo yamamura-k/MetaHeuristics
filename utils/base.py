@@ -6,6 +6,7 @@ from utils.logging import setup_logger
 
 
 def gen_matrix(m, n):
+    np.random.seed(0)
     return np.random.randn(m, n)
 
 

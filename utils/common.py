@@ -7,9 +7,11 @@ import numpy as np
 
 from utils.base import Function
 
+np.random.seed(0)
 
-def getInitialPoint(shape, objective, method="random", *args, **kwargs):
-    if method == "random":
+
+def getInitialPoint(shape, objective, initialize_method="random", *args, **kwargs):
+    if initialize_method == "random":
         try:
             return np.random.uniform(*objective.boundaries, size=shape)
         except AttributeError:
@@ -78,6 +80,8 @@ class ResultManager(object):
         self.best_obj = np.inf
         self.best_x = None
         self.not_updated = 0
+        self.num_restart = 0
+        limit = min(10, limit) if "grad" in algo_name else limit
         self.limit = limit
         self.optimal = False
 
@@ -92,9 +96,8 @@ class ResultManager(object):
 
     def post_process_per_iter(self, x, best_x, iteration, beta=None, alpha=None):
         assert len(x.shape) == 2
-        if not self.EXP:
-            self.pos.append(x)
-            self.best_pos.append(best_x)
+        x = np.clip(x, *self.objective.boundaries)
+        best_x = np.clip(best_x, *self.objective.boundaries)
 
         tmp_obj = np.asscalar(self.objective(best_x))
         if tmp_obj < self.best_obj:
@@ -118,22 +121,32 @@ class ResultManager(object):
         self.logger.info(
             f"XPT is {abs(div - self.div_max)/self.div_max * 100}")
         if alpha is not None and alpha == 0:
+            self.num_restart += 1
             x = getInitialPoint(x.shape, self.objective)
             self.logger.warning(
                 "getInitialPoint current vector because alpha = 0.")
 
         if self.not_updated > self.limit:
+            self.num_restart += 1
             self.not_updated = 0
             x = getInitialPoint(x.shape, self.objective)
             self.logger.warning(
                 "getInitialPoint each population for diversification")
 
-        if np.isclose(self.best_obj, self.objective.opt):
+        if self.best_obj == self.objective.opt:
             self.logger.info("Optimal solution is found.")
             self.optimal = True
-            return True
+        if not self.EXP:
+            gtub = np.sum(x > self.objective.boundaries[1])
+            ltlb = np.sum(x < self.objective.boundaries[0])
+            out_of_bounds = ltlb + gtub
+            if out_of_bounds:
+                self.logger.warning(
+                    f"{out_of_bounds} elements are out of bounds.")
+            self.pos.append(x.copy())
+            self.best_pos.append(best_x.copy())
 
-        return False
+        return self.optimal
 
     def plot(self, save_dir="./images"):
         if len(self.pos) == 0:
@@ -174,7 +187,7 @@ class ResultManager(object):
                      color="red", markeredgecolor="black")
             plt.title('step={}'.format(i))
 
-        ani = animation.FuncAnimation(fig, plot, len(self.pos), interval=200)
+        ani = animation.FuncAnimation(fig, plot, _iter, interval=200)
         os.makedirs(save_dir, exist_ok=True)
         ani.save(
             f"{save_dir}/{self.objective.name}_{self.algo_name}.gif", writer="pillow")

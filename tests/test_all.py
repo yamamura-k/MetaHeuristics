@@ -11,7 +11,7 @@ def test_all():
         ackley(), sphere(), rosenbrock(), styblinski(dimension), k_tablet(),
         weighted_sphere(), different_power(), griewank()]
     algorithms = ["paraABC", "paraBA", "ABC",
-                  "BA", "GWO", "FA", "NM", "CG", "GD", "NV"]
+                  "BA", "GWO", "FA", "TLBO", "NM", "CG", "GD", "NV"]
 
     for algo in algorithms:
         for f in bench_funcs:

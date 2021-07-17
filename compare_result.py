@@ -7,9 +7,14 @@ from utils import setup_logger
 
 
 def main():
-    dimension = 10
+
+    dimension = 2
     num_population = 200
-    max_iter = 20
+    max_iter = 100
+    line_search = "armijo"
+    num_cpu = 1
+    EXP = False
+
     sep = "-"*112+"\n"
     sep_short = "-"*26+"\n"
     print(
@@ -21,19 +26,22 @@ def main():
         ackley(), sphere(), rosenbrock(), styblinski(dimension), k_tablet(),
         weighted_sphere(), different_power(), griewank()]
     algorithms = ["paraABC", "paraBA", "ABC",
-                  "BA", "GWO", "FA", "NM", "CG", "GD", "NV"][2:]
+                  "BA", "GWO", "FA", "TLBO", "NM", "CG", "GD", "NV"][2:]
     L = len(bench_funcs)
     AL = len(algorithms)
     for algo in algorithms:
+        if algo == "ABC" and num_population > 200:
+            algo = "paraABC"
+            num_cpu = 3
         print(algo, "is running ...")
         times = 0
         plot_time = 0
         for f in bench_funcs:
             options = dict(
                 num_population=num_population,
-                method="armijo",
-                num_cpu=2,
-                EXP=True,
+                method=line_search,
+                num_cpu=num_cpu,
+                EXP=EXP,
                 grad=f.grad,
                 lb=f.boundaries[0],
                 ub=f.boundaries[1],
@@ -45,10 +53,10 @@ def main():
                 dimension, f, max_iter, algo=algo, **options)
             best = tmp.best_obj
             etime = time.time()
-            result = f"| {f.name:55} | {f.opt:12.2f} | {best:12.2f} | {etime-stime:8.3f} | {algo:9}"
+            result = f"| {f.name:55} | {f.opt:12.2f} | {best:12.2f} | {etime-stime:8.3f} | {algo:9}({tmp.num_restart}, {tmp.optimal})"
             results.append(result)
             times += etime - stime
-            # tmp.plot()
+            tmp.plot()
             plot_time += time.time() - etime
         print(
             "finish!", f"total {times:.3f} ms, average {times / L:.3f} ms, plot {plot_time:.3f} ms")
@@ -62,7 +70,7 @@ def main():
 
 
 if __name__ == '__main__':
-    logger = setup_logger.setLevel(0)
+    logger = setup_logger.setLevel(20)
     main()
 else:
     logger = setup_logger(__name__)
