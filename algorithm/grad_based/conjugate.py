@@ -35,7 +35,7 @@ def minimize(dimension, objective, max_iter, method="exact", beta_method="defaul
     except NotImplementedError:
         raise AttributeError(
             f"Gradient of {objective} is not defined.")
-    result = ResultManager(objective, "CG", logger, *args, **kwargs)
+    result = ResultManager(objective, __name__, logger, *args, **kwargs)
     result.post_process_per_iter(x, x, -1)
 
     d = -objective.grad(x)

@@ -11,6 +11,7 @@ import numpy as np
 from utils import numpy_to_value, setup_logger, value_to_numpy, value_to_numpy2
 from utils.common import ResultManager
 
+np.random.seed(0)
 logger = setup_logger(__name__)
 
 

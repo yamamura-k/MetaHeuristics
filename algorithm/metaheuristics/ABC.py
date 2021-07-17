@@ -7,6 +7,7 @@ import numpy as np
 from utils import getInitialPoint, setup_logger
 from utils.common import ResultManager
 
+np.random.seed(0)
 logger = setup_logger(__name__)
 
 

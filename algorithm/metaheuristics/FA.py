@@ -1,6 +1,7 @@
 import numpy as np
 from utils import ResultManager, getInitialPoint, setup_logger
 
+np.random.seed(0)
 logger = setup_logger(__name__)
 
 
@@ -14,13 +15,14 @@ def minimize(dimension, objective, max_iter, num_population=100, beta=1, gamma=1
     for t in range(max_iter):
         for i in range(num_population):
             # vector implementation
-            better_x = x[np.where(I <= I[i])[0], :]
+            better_x = x[np.where(I < I[i])].copy()
             better_x -= x[i]
             norm = np.sum(better_x*better_x, axis=0)
             rand = np.random.random(size=(better_x.shape[0], 1))
             rand = np.broadcast_to(rand, better_x.shape).copy()
             x[i] += np.sum(beta*np.exp(-gamma*norm) * better_x +
                            alpha*(rand-0.5), axis=0)
+            assert (x[np.where(I < I[i])] != better_x).all()
             I[i] = objective(x[i])
             if I[i] < I[best_idx]:
                 best_idx = i

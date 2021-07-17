@@ -16,7 +16,7 @@ def minimize(dimension, objective, max_iter, alpha=1e-4, method="exact", *args, 
     lam_nx = None
     gam = -1
     y = x.copy()
-    result = ResultManager(objective, "NV", logger, *args, **kwargs)
+    result = ResultManager(objective, __name__, logger, *args, **kwargs)
     result.post_process_per_iter(x, x, -1)
 
     for t in range(max_iter):

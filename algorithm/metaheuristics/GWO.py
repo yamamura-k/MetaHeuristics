@@ -2,6 +2,7 @@ import numpy as np
 from utils import getInitialPoint, setup_logger
 from utils.common import ResultManager
 
+np.random.seed(0)
 logger = setup_logger(__name__)
 
 
@@ -24,7 +25,7 @@ def minimize(dimension, objective, max_iter, num_population=100, top_k=3, *args,
     A_s = np.broadcast_to(A, X_s.shape).copy()
     C_s = np.broadcast_to(C, X_s.shape).copy()
 
-    result = ResultManager(objective, "GWO", logger, *args, **kwargs)
+    result = ResultManager(objective, __name__, logger, *args, **kwargs)
     result.post_process_per_iter(x, best_x[0], -1)
 
     for t in range(max_iter):

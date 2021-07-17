@@ -2,8 +2,8 @@ import numpy as np
 from utils import getInitialPoint, setup_logger
 from utils.common import ResultManager
 
+np.random.seed(0)
 logger = setup_logger(__name__)
-
 # numpy version
 
 
@@ -24,7 +24,7 @@ def minimize(dimension, objective, max_iter, num_population=100, f_min=0,
             obj_best = obj_tmp
             best_x = x[i].copy()
 
-    result = ResultManager(objective, "BA", logger, *args, **kwargs)
+    result = ResultManager(objective, __name__, logger, *args, **kwargs)
     result.post_process_per_iter(x, best_x, -1)
 
     for step in range(max_iter):
@@ -96,7 +96,7 @@ def _minimize(dimension, objective, max_iter, num_population=100, f_min=0,
             obj_best = obj_tmp
             best_x = x[i].copy()
 
-    result = ResultManager(objective, "BA", logger, *args, **kwargs)
+    result = ResultManager(objective, __name__, logger, *args, **kwargs)
     result.post_process_per_iter(x, best_x, -1)
 
     for step in range(max_iter):
