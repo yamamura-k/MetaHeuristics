@@ -1,5 +1,5 @@
 import numpy as np
-from utils import getInintialPoint, lin_search, setup_logger
+from utils import getInitialPoint, lin_search, setup_logger
 from utils.common import ResultManager
 
 logger = setup_logger(__name__)
@@ -7,7 +7,7 @@ logger = setup_logger(__name__)
 
 def minimize(dimension, objective, max_iter, alpha=1e-4,
              method="exact", *args, **kwargs):
-    x = getInintialPoint((dimension, 1), objective)
+    x = getInitialPoint((dimension, 1), objective)
     try:
         objective.grad(x)
     except NotImplementedError:

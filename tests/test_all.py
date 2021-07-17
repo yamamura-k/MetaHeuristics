@@ -1,5 +1,4 @@
 from algorithm import optimize
-
 from benchmarks import (ackley, different_power, griewank, k_tablet,
                         rosenbrock, sphere, styblinski, weighted_sphere)
 
@@ -12,7 +11,7 @@ def test_all():
         ackley(), sphere(), rosenbrock(), styblinski(dimension), k_tablet(),
         weighted_sphere(), different_power(), griewank()]
     algorithms = ["paraABC", "paraBA", "ABC",
-                  "BA", "GWO", "NM", "CG", "GD", "NV"]
+                  "BA", "GWO", "FA", "NM", "CG", "GD", "NV"]
 
     for algo in algorithms:
         for f in bench_funcs:

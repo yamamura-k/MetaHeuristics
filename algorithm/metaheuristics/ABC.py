@@ -4,7 +4,7 @@ Sample implementation of Artificial Bee Colony Algorithm.
 Reference : https://link.springer.com/content/pdf/10.1007/s10898-007-9149-x.pdf
 """
 import numpy as np
-from utils import getInintialPoint, setup_logger
+from utils import getInitialPoint, setup_logger
 from utils.common import ResultManager
 
 logger = setup_logger(__name__)
@@ -12,7 +12,7 @@ logger = setup_logger(__name__)
 
 def minimize(dimension, objective, max_iter, max_visit=10, num_population=100, *args, **kwargs):
     # step1 : initialization
-    x = getInintialPoint((num_population, dimension), objective)
+    x = getInitialPoint((num_population, dimension), objective)
     all_candidates = np.arange(num_population)
     v = np.array([objective(t) for t in x])
     cnt = np.zeros(num_population)
@@ -32,7 +32,7 @@ def minimize(dimension, objective, max_iter, max_visit=10, num_population=100, *
     def random_update():
         candidate = np.where(cnt == max_visit)[0]
         for i in candidate:
-            x_i = getInintialPoint((dimension, ), objective)
+            x_i = getInitialPoint((dimension, ), objective)
             v_new = objective(x_i)
             if v_new <= v[i]:
                 x[i] = x_i

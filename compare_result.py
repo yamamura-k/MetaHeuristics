@@ -21,7 +21,7 @@ def main():
         ackley(), sphere(), rosenbrock(), styblinski(dimension), k_tablet(),
         weighted_sphere(), different_power(), griewank()]
     algorithms = ["paraABC", "paraBA", "ABC",
-                  "BA", "GWO", "NM", "CG", "GD", "NV"]
+                  "BA", "GWO", "FA", "NM", "CG", "GD", "NV"][2:]
     L = len(bench_funcs)
     AL = len(algorithms)
     for algo in algorithms:

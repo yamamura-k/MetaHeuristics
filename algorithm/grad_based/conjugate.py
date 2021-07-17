@@ -6,7 +6,7 @@ References :
 """
 import numpy as np
 from utils import lin_search, setup_logger
-from utils.common import ResultManager, getInintialPoint
+from utils.common import ResultManager, getInitialPoint
 
 logger = setup_logger(__name__)
 
@@ -29,7 +29,7 @@ def getBeta(method, d, d_prev, s):
 
 
 def minimize(dimension, objective, max_iter, method="exact", beta_method="default", *args, **kwargs):
-    x = getInintialPoint((dimension, 1), objective)
+    x = getInitialPoint((dimension, 1), objective)
     try:
         objective.grad(x)
     except NotImplementedError:
