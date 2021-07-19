@@ -34,6 +34,26 @@ def dimension_wise_diversity_measurement(x):
     return div
 
 
+def update_params(base_param: dict, additional: dict):
+    """overwrite base parameter dictionary
+
+    Parameters
+    ----------
+    base_param : dict
+        base param dictionary
+    additional : dict
+        additional param dictionary
+
+    Returns
+    -------
+    dict
+        updated parameter dictionary
+    """
+    for key in additional:
+        base_param[key] = additional[key]
+    return base_param
+
+
 class FunctionWrapper(Function):
     def __init__(self, objective, grad=None, hesse=None, lb=None, ub=None, opt=None, name=None, maximize=False, *args, **kwargs):
         super().__init__()
@@ -44,6 +64,10 @@ class FunctionWrapper(Function):
         self._grad = grad
         self._hesse = hesse
         self.sign = -1 if maximize else 1
+        if isinstance(objective, Function):
+            self.boundaries = objective.boundaries
+            self.opt = objective.opt
+            self.name = objective.name
         if (ub is not None) and (lb is not None):
             self.boundaries = (lb, ub)
         if opt is not None:
@@ -111,7 +135,11 @@ class ResultManager(object):
         self.div_max = max(self.div_max, div)
         self.divs.append(div)
         self.div_maxs.append(self.div_max)
-        message = [f"iteration {iteration} [ best objective ] {self.best_obj}"]
+        message = [
+            f"iteration {iteration}",
+            f"[ best objective ] {self.best_obj}",
+            f"({self.objective.name})"]
+
         if beta is not None:
             message.append(f"[ beta ] {beta}")
         if alpha is not None:
@@ -131,7 +159,7 @@ class ResultManager(object):
             self.not_updated = 0
             x = getInitialPoint(x.shape, self.objective)
             self.logger.warning(
-                "getInitialPoint each population for diversification")
+                "getInitialPoint each population for diversification.")
 
         if self.best_obj == self.objective.opt:
             self.logger.info("Optimal solution is found.")
@@ -141,7 +169,7 @@ class ResultManager(object):
             ltlb = np.sum(x < self.objective.boundaries[0])
             out_of_bounds = ltlb + gtub
             if out_of_bounds:
-                self.logger.warning(
+                self.logger.critical(
                     f"{out_of_bounds} elements are out of bounds.")
             self.pos.append(x.copy())
             self.best_pos.append(best_x.copy())

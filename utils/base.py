@@ -15,7 +15,7 @@ logger = setup_logger(__name__)
 
 class Function(metaclass=ABCMeta):
     def __init__(self):
-        self.name = "function"
+        self.__name = self.__class__.__name__
         self.opt = -np.inf
         self.__boundaries = None
 
@@ -26,6 +26,18 @@ class Function(metaclass=ABCMeta):
     @property
     def boundaries(self):
         pass
+
+    @property
+    def name(self):
+        pass
+
+    @name.getter
+    def name(self):
+        return self.__name
+
+    @name.setter
+    def name(self, _name):
+        self.__name = _name
 
     @boundaries.getter
     def boundaries(self):

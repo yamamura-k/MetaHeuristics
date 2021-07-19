@@ -3,12 +3,28 @@ import time
 from algorithm import optimize
 from benchmarks import (ackley, different_power, griewank, k_tablet,
                         rosenbrock, sphere, styblinski, weighted_sphere)
-from utils import setup_logger
+from utils import getBestParams, setup_logger, update_params
+
+logger = setup_logger(__name__)
+
+
+def hypara_opt(num_processes=2, n_jobs=2):
+    from multiprocessing import Pool
+    dimension = 20
+    bench_funcs = [
+        ackley(), sphere(), rosenbrock(), styblinski(dimension), k_tablet(),
+        weighted_sphere(), different_power(), griewank()]
+    algorithms = ["GWO", "FA", "TLBO", "ABC",
+                  "BA", "NM", "CG", "GD", "NV"][-3:]
+    with Pool(processes=num_processes) as p:
+        inputs = [(dimension, f, algo, n_jobs)
+                  for f in bench_funcs for algo in algorithms]
+        p.starmap(getBestParams, inputs)
 
 
 def main():
 
-    dimension = 2
+    dimension = 20
     num_population = 200
     max_iter = 100
     line_search = "armijo"
@@ -38,6 +54,7 @@ def main():
         plot_time = 0
         for f in bench_funcs:
             options = dict(
+                max_iter=max_iter,
                 num_population=num_population,
                 method=line_search,
                 num_cpu=num_cpu,
@@ -48,9 +65,11 @@ def main():
                 opt=f.opt,
                 name=f.name,
             )
+            param = getBestParams(dimension, f, algo, is_search=False)
+            options = update_params(options, param)
             stime = time.time()
             tmp = optimize(
-                dimension, f, max_iter, algo=algo, **options)
+                dimension, f, algo=algo, **options)
             best = tmp.best_obj
             etime = time.time()
             result = f"| {f.name:55} | {f.opt:12.2f} | {best:12.2f} | {etime-stime:8.3f} | {algo:9}({tmp.num_restart}, {tmp.optimal})"
@@ -71,6 +90,7 @@ def main():
 
 if __name__ == '__main__':
     logger = setup_logger.setLevel(20)
+    # hypara_opt()
     main()
 else:
     logger = setup_logger(__name__)
