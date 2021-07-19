@@ -58,8 +58,9 @@ def getBestParams(dimension, f, algo_name, n_jobs=2, n_trials=100, seed=0, is_se
 
     os.makedirs(save_dir, exist_ok=True)
     filename = f"best_param_{algo_name}_{f.name}_dimension{dimension}.pkl"
+    filepath = os.path.join(save_dir, filename)
     # if parameter file exists and is_search is False, return it
-    if os.path.isfile(filename) and not is_search:
+    if os.path.isfile(filepath) and not is_search:
         with open(os.path.join(save_dir, filename), "wb") as f:
             return pkl.load(f)
     # otherwize, search best parameters with optuna
@@ -69,7 +70,7 @@ def getBestParams(dimension, f, algo_name, n_jobs=2, n_trials=100, seed=0, is_se
         trial, dimension=dimension, f=f, algo_name=algo_name), n_trials=n_trials, n_jobs=n_jobs)
     best_params = study.best_params
 
-    with open(os.path.join(save_dir, filename), "wb") as f:
+    with open(filepath, "wb") as f:
         pkl.dump(best_params, f, protocol=3)
 
     return best_params
