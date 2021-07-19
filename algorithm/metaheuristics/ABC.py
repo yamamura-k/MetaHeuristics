@@ -40,7 +40,7 @@ def minimize(dimension, objective, max_iter, max_visit=10, num_population=100, *
                 v[i] = v_new
                 cnt[i] = 1
 
-    result = ResultManager(objective, "ABC", logger, *args, **kwargs)
+    result = ResultManager(objective, __name__, logger, *args, **kwargs)
     m = np.min(v)
     best_pos = np.where(v == m)
     result.post_process_per_iter(x, x[best_pos][0], -1)
