@@ -16,40 +16,42 @@ best_solution = (result.best_obj, result.best_x)
 ├── LICENSE
 ├── README.md
 ├── requirements.txt
-├── algorithm
-│   ├── grad_based
-│   │   ├── gradient_descent.py
-│   │   ├── newton.py
-│   │   ├── __init__.py
-│   │   ├── __pycache__
-│   │   ├── nesterov.py
-│   │   └── conjugate.py
-│   ├── metaheuristics
-│   │   ├── GWO.py
-│   │   ├── __init__.py
-│   │   ├── paraBA.py
-│   │   ├── BA.py
-│   │   ├── paraABC.py
-│   │   ├── FA.py
-│   │   └── ABC.py
-│   ├── __init__.py
-│   └── nelder_mead.py
-├── utils
-│   ├── logging.py
-│   ├── grad_based.py
-│   ├── __init__.py
-│   ├── common.py
-│   ├── parallel.py
-│   └── base.py
 ├── tests
 │   ├── test_all.py
 │   ├── utils -> ../utils/
 │   ├── algorithm -> ../algorithm
 │   └── benchmarks.py -> ../benchmarks.py
+├── utils
+│   ├── __init__.py
+│   ├── logging.py
+│   ├── grad_based.py
+│   ├── parameter_search.py
+│   ├── common.py
+│   ├── parallel.py
+│   └── base.py
+├── algorithm
+│   ├── __init__.py
+│   ├── grad_based
+│   │   ├── __init__.py
+│   │   ├── gradient_descent.py
+│   │   ├── newton.py
+│   │   ├── nesterov.py
+│   │   └── conjugate.py
+│   ├── metaheuristics
+│   │   ├── __init__.py
+│   │   ├── TLBO.py
+│   │   ├── GWO.py
+│   │   ├── paraBA.py
+│   │   ├── BA.py
+│   │   ├── paraABC.py
+│   │   ├── FA.py
+│   │   └── ABC.py
+│   └── nelder_mead.py
 ├── cpp
 │   ├── CMakeLists.txt
 │   ├── ABC.cpp
 │   └── main.cpp
+├── check_grad.py
 ├── compare_result.py
 └── benchmarks.py
 ```
@@ -102,12 +104,11 @@ Reference : https://qiita.com/tomitomi3/items/d4318bf7afbc1c835dda (Japanese)
 
 ### Others
 
-| File                             | Description                         |
-| -------------------------------- | ----------------------------------- |
-| utils.py                         | Utility functions                   |
-| compare_result_metaheuristics.py | Example                             |
-| compare_result_grad_based.py     | Example                             |
-| cpp/CMakeLists.txt               | For cmake                           |
+| File               | Description       |
+| ------------------ | ----------------- |
+| utils              | Utility functions |
+| compare_result.py  | Example           |
+| cpp/CMakeLists.txt | For cmake         |
 
 
 ## References
