@@ -1,12 +1,11 @@
 import os
 import time
-from jax import partial
 from typing import Callable
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
-from jax import grad, hessian, jit
+from jax import grad, hessian, jit, partial
 
 from utils.base import Function
 
@@ -133,7 +132,7 @@ class ResultManager(object):
         self.divs = []
         self.div_maxs = []
 
-    def post_process_per_iter(self, x, best_x, iteration, beta=None, alpha=None, lam=None, _grad=None):
+    def post_process_per_iter(self, x, best_x, iteration, beta=None, alpha=None, lam=None, grad=None):
 
         if len(x.shape) == 1:
             dimension = x.shape[0]
@@ -183,7 +182,7 @@ class ResultManager(object):
             self.logger.warning(
                 "getInitialPoint each population for diversification.")
 
-        if _grad is not None and (_grad == 0).all():
+        if grad is not None and (grad == 0).all():
             self.logger.warning(
                 "Converged to local opt. Randomize current point.")
             x = getInitialPoint(x.shape, self.objective)
