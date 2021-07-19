@@ -1,5 +1,4 @@
 import numpy as np
-from jax import device_put
 from utils import getInitialPoint, setup_logger
 from utils.common import ResultManager
 
@@ -9,8 +8,7 @@ logger = setup_logger(__name__)
 
 def minimize(dimension, objective, max_iter, num_population=100, top_k=3, *args, **kwargs):
     x = getInitialPoint((num_population, dimension), objective)
-    obj_vals = np.array(
-        [objective(device_put(t)).block_until_ready() for t in x])
+    obj_vals = np.array([objective(t) for t in x])
     lis = np.argsort(obj_vals)
     best_x = np.empty((top_k, dimension))
     best_obj = np.empty(top_k)
@@ -39,8 +37,7 @@ def minimize(dimension, objective, max_iter, num_population=100, top_k=3, *args,
         r1 = np.random.random(dimension)
         A = 2*a*r1-a
         C = 2*np.random.random(dimension)
-        obj_vals = np.array(
-            [objective(device_put(t)).block_until_ready() for t in x])
+        obj_vals = np.array([objective(t) for t in x])
         lis = np.argsort(obj_vals)
 
         for i in range(3):

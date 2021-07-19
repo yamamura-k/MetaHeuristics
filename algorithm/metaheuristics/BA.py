@@ -1,5 +1,4 @@
 import numpy as np
-from jax import device_put
 from utils import getInitialPoint, setup_logger
 from utils.common import ResultManager
 
@@ -29,15 +28,13 @@ def minimize(dimension, objective, max_iter, num_population=100, f_min=0,
     result.post_process_per_iter(x, best_x, -1)
 
     for step in range(max_iter):
-        obj_current = np.array(
-            [objective(device_put(t)).block_until_ready() for t in x])
+        obj_current = np.array([objective(t) for t in x])
         f = f_min + (f_max - f_min) * \
             np.broadcast_to(np.random.uniform(
                 0, 1, size=num_population), (dimension, num_population)).T
         v += (x - np.broadcast_to(best_x, x.shape)) * f
         x_t = x + v
-        obj_t = np.array(
-            [objective(device_put(t)).block_until_ready() for t in x_t])
+        obj_t = np.array([objective(t) for t in x_t])
         obj_new = np.full(num_population, np.inf)
 
         idxs = np.where(np.random.rand(*r.shape) > r)
@@ -49,8 +46,7 @@ def minimize(dimension, objective, max_iter, num_population=100, f_min=0,
         obj_new[idxs] = np.array([objective(x_new[t]) for t in idxs[0]])
 
         x_random = getInitialPoint((num_population, dimension), objective)
-        obj_random = np.array([objective(device_put(t)).block_until_ready()
-                              for t in x_random])
+        obj_random = np.array([objective(t) for t in x_random])
 
         idxs1 = np.where(((obj_new == np.inf) | (obj_t > obj_new)) & (
             obj_t > obj_random) & (obj_random > obj_new))

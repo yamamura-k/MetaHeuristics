@@ -1,5 +1,7 @@
+from jax import partial
+
 import jax.numpy as np
-from jax import jit, partial
+from jax import jit
 
 from utils.base import Function, gen_matrix
 
@@ -29,7 +31,7 @@ class log_exp(Function):
 
     def hesse(self, x, grad=None):
         if grad is None:
-            nabla = self.grad(device_put(x)).block_until_ready()
+            nabla = self.grad(x)
         else:
             nabla = grad
         _, n = self.A.shape

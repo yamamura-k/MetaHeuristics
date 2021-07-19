@@ -1,5 +1,4 @@
 import numpy as np
-from jax import device_put
 from utils import getInitialPoint, lin_search, setup_logger
 from utils.common import ResultManager
 
@@ -9,7 +8,7 @@ logger = setup_logger(__name__)
 def minimize(dimension, objective, max_iter, alpha=1e-4, method="exact", *args, **kwargs):
     x = getInitialPoint((dimension,), objective)
     try:
-        objective.grad(device_put(x)).block_until_ready()
+        objective.grad(x)
     except NotImplementedError:
         raise AttributeError(
             f"Gradient of {objective} is not defined.")
@@ -19,14 +18,14 @@ def minimize(dimension, objective, max_iter, alpha=1e-4, method="exact", *args, 
     y = x.copy()
     result = ResultManager(objective, __name__, logger, *args, **kwargs)
     result.post_process_per_iter(x, x, -1)
-    d_prev = -objective.grad(device_put(x)).block_until_ready()
+    d_prev = -objective.grad(x)
 
     for t in range(max_iter):
         if alpha == 0:
             break
         y_nx = x + d_prev*alpha
         x = y_nx + gam*(y_nx - y)
-        d = -objective.grad(device_put(x)).block_until_ready()
+        d = -objective.grad(x)
 
         y = y_nx
         lam_nx = 1 + np.sqrt(1+2*lam**2)/2

@@ -13,8 +13,7 @@ def minimize(dimension, objective, max_iter, alpha=1, gamma=2, rho=0.5, sigma=0.
     x = np.vstack([x + np.eye(dimension), x])
     result = ResultManager(objective, __name__, logger, *args, **kwargs)
     for t in range(max_iter):
-        obj_vals = np.array(
-            [objective(device_put(t)).block_until_ready() for t in x])
+        obj_vals = np.array([objective(t) for t in x])
         orders = np.argsort(obj_vals)
         obj_vals = obj_vals[orders]
         x = x[orders]

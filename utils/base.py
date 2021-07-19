@@ -1,7 +1,8 @@
 from abc import ABCMeta, abstractmethod
+from jax import partial
 
 import numpy as np
-from jax import jit, partial
+from jax import jit
 
 from utils.logging import setup_logger
 

@@ -1,11 +1,12 @@
 import os
 import time
+from jax import partial
 from typing import Callable
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
-from jax import device_put, grad, hessian, jit, partial
+from jax import grad, hessian, jit
 
 from utils.base import Function
 
@@ -92,9 +93,9 @@ class FunctionWrapper(Function):
     def grad(self, x):
         x = np.clip(x, *self.boundaries)
         if self._grad is None:
-            return self.sign*super().grad(device_put(x)).block_until_ready()
+            return self.sign*super().grad(x)
         else:
-            return self.sign*self._grad(device_put(x)).block_until_ready()
+            return self.sign*self._grad(x)
 
     @partial(jit, static_argnums=0)
     def hesse(self, x):
@@ -132,7 +133,7 @@ class ResultManager(object):
         self.divs = []
         self.div_maxs = []
 
-    def post_process_per_iter(self, x, best_x, iteration, beta=None, alpha=None, lam=None, grad=None):
+    def post_process_per_iter(self, x, best_x, iteration, beta=None, alpha=None, lam=None, _grad=None):
 
         if len(x.shape) == 1:
             dimension = x.shape[0]
@@ -182,7 +183,7 @@ class ResultManager(object):
             self.logger.warning(
                 "getInitialPoint each population for diversification.")
 
-        if grad is not None and (grad == 0).all():
+        if _grad is not None and (_grad == 0).all():
             self.logger.warning(
                 "Converged to local opt. Randomize current point.")
             x = getInitialPoint(x.shape, self.objective)

@@ -4,7 +4,6 @@ Sample implementation of Artificial Bee Colony Algorithm.
 Reference : https://link.springer.com/content/pdf/10.1007/s10898-007-9149-x.pdf
 """
 import numpy as np
-from jax import device_put
 from utils import getInitialPoint, setup_logger
 from utils.common import ResultManager
 
@@ -16,7 +15,7 @@ def minimize(dimension, objective, max_iter, max_visit=10, num_population=100, *
     # step1 : initialization
     x = getInitialPoint((num_population, dimension), objective)
     all_candidates = np.arange(num_population)
-    v = np.array([objective(device_put(t)).block_until_ready() for t in x])
+    v = np.array([objective(t) for t in x])
     cnt = np.zeros(num_population)
 
     def update(i):

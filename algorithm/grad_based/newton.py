@@ -1,5 +1,4 @@
 import numpy as np
-from jax import device_put
 from utils import getInitialPoint, setup_logger
 from utils.common import ResultManager
 
@@ -9,7 +8,7 @@ logger = setup_logger(__name__)
 def minimize(dimension, objective, eps=1e-10, *args, **kwargs):
     x = getInitialPoint((dimension,), objective)
     try:
-        objective.grad(device_put(x)).block_until_ready()
+        objective.grad(x)
     except NotImplementedError:
         raise AttributeError(
             f"Gradient of {objective} is not defined.")
@@ -19,7 +18,7 @@ def minimize(dimension, objective, eps=1e-10, *args, **kwargs):
         raise AttributeError(
             f"Hesse matrix of {objective} is not defined.")
 
-    nab = objective.grad(device_put(x)).block_until_ready()
+    nab = objective.grad(x)
     try:
         H_inv = np.linalg.inv(objective.hesse(x))
     except np.linalg.LinAlgError:
@@ -38,7 +37,7 @@ def minimize(dimension, objective, eps=1e-10, *args, **kwargs):
         # assert (eig >= 0).all()
 
         x = x + d
-        nab = objective.grad(device_put(x)).block_until_ready()
+        nab = objective.grad(x)
         try:
             H_inv = np.linalg.inv(objective.hesse(x))
         except np.linalg.LinAlgError:
