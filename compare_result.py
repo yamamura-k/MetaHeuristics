@@ -5,8 +5,6 @@ from benchmarks import (ackley, different_power, griewank, k_tablet,
                         rosenbrock, sphere, styblinski, weighted_sphere)
 from utils import getBestParams, setup_logger, update_params
 
-logger = setup_logger(__name__)
-
 
 def hypara_opt(num_processes=2, n_jobs=2):
     from multiprocessing import Pool
