@@ -1,4 +1,7 @@
+from functools import partial
+
 import jax.numpy as np
+from jax import jit
 
 from utils.base import Function, gen_matrix
 
@@ -16,6 +19,7 @@ class log_exp(Function):
             self.A = A
         self.boundaries = [-.5, .5]
 
+    @partial(jit, static_argnums=(0, ))
     def __call__(self, x):
         return np.log(np.sum(np.exp(self.A@x + 1)))
 
@@ -46,6 +50,7 @@ class ackley(Function):
         self.opt = 0
         self.boundaries = np.array([-32.768, 32.768])
 
+    @partial(jit, static_argnums=(0, ))
     def __call__(self, x):
         t1 = 20
         t2 = - 20 * np.exp(- 0.2 * np.sqrt(1.0 / len(x) * x.T@x))
@@ -60,6 +65,7 @@ class sphere(Function):
         self.opt = 0
         self.boundaries = np.array([-100, 100])
 
+    @partial(jit, static_argnums=(0, ))
     def __call__(self, x):
         return x.T@x
 
@@ -70,6 +76,7 @@ class rosenbrock(Function):
         self.opt = 0
         self.boundaries = np.array([-5, 5])
 
+    @partial(jit, static_argnums=(0, ))
     def __call__(self, x):
         val = np.sum(100*(x[1:] - x[:-1]**2)**2 + (x[:-1] - 1)**2, axis=0)
         return val
@@ -82,6 +89,7 @@ class styblinski(Function):
         self.opt = -39.166165*dimension
         self.boundaries = np.array([-5, 4])
 
+    @partial(jit, static_argnums=(0, ))
     def __call__(self, x):
         pow_x = x ** 2
         t1 = np.sum(pow_x ** 2)
@@ -97,6 +105,7 @@ class k_tablet(Function):
         self.boundaries = np.array([-5.12, 5.12])
         self.k = int(np.ceil(dimension / 4.0))
 
+    @partial(jit, static_argnums=(0, ))
     def __call__(self, x):
         t1 = x[:self.k].T@x[:self.k]
         t2 = 100 ** 2 * t1
@@ -110,6 +119,7 @@ class weighted_sphere(Function):
         self.boundaries = np.array([-5.12, 5.12])
         self.coef = np.arange(start=1, step=1, stop=dimension+1)
 
+    @partial(jit, static_argnums=(0, ))
     def __call__(self, x):
         val = self.coef * x * x
         return np.sum(val)
@@ -122,6 +132,7 @@ class different_power(Function):
         self.boundaries = np.array([-1, 1])
         self.coef = np.arange(start=1, step=1, stop=dimension+1)
 
+    @partial(jit, static_argnums=(0, ))
     def __call__(self, x):
         val = np.sum(np.power(np.abs(x), self.coef))
         return val
@@ -135,6 +146,7 @@ class griewank(Function):
         tmp = np.arange(start=1, step=1, stop=dimension+1)
         self.w = 1.0 / tmp
 
+    @partial(jit, static_argnums=(0, ))
     def __call__(self, x):
         t1 = 1
         t2 = 1.0 / 4000.0 * x.T@x

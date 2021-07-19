@@ -45,7 +45,7 @@ def minimize(dimension, objective, eps=1e-10, *args, **kwargs):
             H_inv = np.linalg.pinv(objective.hesse(x))
         lam = nab.T@H_inv@nab
         d = -H_inv@nab
-        if result.post_process_per_iter(x, x, t, lam=lam):
+        if result.post_process_per_iter(x, x, t, lam=lam, grad=nab):
             break
         t += 1
 

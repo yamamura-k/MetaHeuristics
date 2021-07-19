@@ -25,8 +25,9 @@ def minimize(dimension, objective, max_iter, alpha=1e-4,
         if not np.isscalar(alpha):
             print(method)
             raise AssertionError
-        x -= alpha*objective.grad(x)
-        if result.post_process_per_iter(x, x, t, alpha=alpha):
+        d = -objective.grad(x)
+        x += alpha*d
+        if result.post_process_per_iter(x, x, t, alpha=alpha, grad=-d):
             break
 
     return result

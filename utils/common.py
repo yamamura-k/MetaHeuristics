@@ -1,4 +1,5 @@
 import os
+import time
 from functools import partial
 from typing import Callable
 
@@ -121,6 +122,9 @@ class ResultManager(object):
         self.optimal = False
 
         self.EXP = EXP
+        if not EXP:
+            self.time = []
+            self.stime = time.time()
 
         self.pos = []
         self.best_pos = []
@@ -129,7 +133,7 @@ class ResultManager(object):
         self.divs = []
         self.div_maxs = []
 
-    def post_process_per_iter(self, x, best_x, iteration, beta=None, alpha=None, lam=None):
+    def post_process_per_iter(self, x, best_x, iteration, beta=None, alpha=None, lam=None, _grad=None):
 
         if len(x.shape) == 1:
             dimension = x.shape[0]
@@ -179,7 +183,7 @@ class ResultManager(object):
             self.logger.warning(
                 "getInitialPoint each population for diversification.")
 
-        if (self.objective.grad(best_x) == 0).all():
+        if _grad is not None and (_grad == 0).all():
             self.logger.warning(
                 "Converged to local opt. Randomize current point.")
             x = getInitialPoint(x.shape, self.objective)
@@ -197,6 +201,8 @@ class ResultManager(object):
                     f"{out_of_bounds} elements are out of bounds.")
             self.pos.append(x.copy())
             self.best_pos.append(best_x.copy())
+            self.time.append(time.time()-self.stime)
+            self.logger.debug(f"{self.time[-1]} [ ms ] elapsed.")
 
         return self.optimal
 

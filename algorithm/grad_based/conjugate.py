@@ -36,12 +36,12 @@ def minimize(dimension, objective, max_iter, method="exact", beta_method="defaul
         raise AttributeError(
             f"Gradient of {objective} is not defined.")
     result = ResultManager(objective, __name__, logger, *args, **kwargs)
-    result.post_process_per_iter(x, x, -1)
 
     d = -objective.grad(x)
     d_prev = d
     s = d
     alpha = lin_search(x, s, objective, method=method)
+    result.post_process_per_iter(x, x, -1, grad=-d, alpha=alpha)
     for t in range(max_iter):
         x += alpha*s
         d = -objective.grad(x)
@@ -50,7 +50,7 @@ def minimize(dimension, objective, max_iter, method="exact", beta_method="defaul
         alpha = lin_search(x, s, objective, method=method)
         d_prev = d
 
-        if result.post_process_per_iter(x, x, t, alpha=alpha, beta=beta):
+        if result.post_process_per_iter(x, x, t, alpha=alpha, beta=beta, grad=-d):
             break
 
     return result
