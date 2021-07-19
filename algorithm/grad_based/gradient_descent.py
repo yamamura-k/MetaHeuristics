@@ -7,7 +7,7 @@ logger = setup_logger(__name__)
 
 def minimize(dimension, objective, max_iter, alpha=1e-4,
              method="exact", *args, **kwargs):
-    x = getInitialPoint((dimension, 1), objective)
+    x = getInitialPoint((dimension,), objective)
     try:
         objective.grad(x)
     except NotImplementedError:

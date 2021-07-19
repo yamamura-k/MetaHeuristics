@@ -29,7 +29,7 @@ def getBeta(method, d, d_prev, s):
 
 
 def minimize(dimension, objective, max_iter, method="exact", beta_method="default", *args, **kwargs):
-    x = getInitialPoint((dimension, 1), objective)
+    x = getInitialPoint((dimension,), objective)
     try:
         objective.grad(x)
     except NotImplementedError:

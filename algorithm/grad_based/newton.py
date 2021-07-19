@@ -5,8 +5,8 @@ from utils.common import ResultManager
 logger = setup_logger(__name__)
 
 
-def minimize(dimension, objective, eps=1e-20, *args, **kwargs):
-    x = getInitialPoint((dimension, 1), objective)
+def minimize(dimension, objective, eps=1e-10, *args, **kwargs):
+    x = getInitialPoint((dimension,), objective)
     try:
         objective.grad(x)
     except NotImplementedError:
@@ -19,24 +19,33 @@ def minimize(dimension, objective, eps=1e-20, *args, **kwargs):
             f"Hesse matrix of {objective} is not defined.")
 
     nab = objective.grad(x)
-    H_inv = np.linalg.inv(objective.hesse(x))
+    try:
+        H_inv = np.linalg.inv(objective.hesse(x))
+    except np.linalg.LinAlgError:
+        logger.critical("Use pseudo inverse matrix.")
+        H_inv = np.linalg.pinv(objective.hesse(x))
     lam = nab.T@H_inv@nab
     d = -H_inv@nab
 
     result = ResultManager(objective, __name__, logger, *args, **kwargs)
-    result.post_process_per_iter(x, x, -1)
-
+    result.post_process_per_iter(x, x, -1, lam=lam)
+    if (np.isnan(nab)).any():
+        logger.critical("gradient is nan.")
     t = 0
     while lam > eps:
-        eig, _ = np.linalg.eig(H_inv)
-        assert (eig >= 0).all()
+        # eig, _ = np.linalg.eig(H_inv)
+        # assert (eig >= 0).all()
 
         x = x + d
         nab = objective.grad(x)
-        H_inv = np.linalg.inv(objective.hesse(x))
+        try:
+            H_inv = np.linalg.inv(objective.hesse(x))
+        except np.linalg.LinAlgError:
+            logger.critical("Use pseudo inverse matrix.")
+            H_inv = np.linalg.pinv(objective.hesse(x))
         lam = nab.T@H_inv@nab
         d = -H_inv@nab
-        if result.post_process_per_iter(x, x, t):
+        if result.post_process_per_iter(x, x, t, lam=lam):
             break
         t += 1
 

@@ -1,19 +1,23 @@
 import time
 
 from algorithm import optimize
-from benchmarks import (ackley, different_power, griewank, k_tablet,
+from benchmarks import (ackley, different_power, griewank, k_tablet, log_exp,
                         rosenbrock, sphere, styblinski, weighted_sphere)
 from utils import getBestParams, setup_logger, update_params
+
+dimension = 20
+bench_funcs = [
+    ackley(), sphere(), rosenbrock(), styblinski(dimension),
+    k_tablet(dimension), weighted_sphere(dimension),
+    different_power(dimension), griewank(dimension),
+    log_exp(n=dimension)
+]
+algorithms = ["paraABC", "paraBA", "ABC",
+              "BA", "GWO", "FA", "TLBO", "NM", "CG", "GD", "NV", "NW"][2:]
 
 
 def hypara_opt(num_processes=2, n_jobs=2):
     from multiprocessing import Pool
-    dimension = 20
-    bench_funcs = [
-        ackley(), sphere(), rosenbrock(), styblinski(dimension), k_tablet(),
-        weighted_sphere(), different_power(), griewank()]
-    algorithms = ["GWO", "FA", "TLBO", "ABC",
-                  "BA", "NM", "CG", "GD", "NV"][-3:]
     with Pool(processes=num_processes) as p:
         inputs = [(dimension, f, algo, n_jobs)
                   for f in bench_funcs for algo in algorithms]
@@ -22,12 +26,11 @@ def hypara_opt(num_processes=2, n_jobs=2):
 
 def main():
 
-    dimension = 20
     num_population = 200
     max_iter = 100
     line_search = "armijo"
     num_cpu = 1
-    EXP = False
+    EXP = True
 
     sep = "-"*112+"\n"
     sep_short = "-"*26+"\n"
@@ -36,11 +39,6 @@ def main():
     results = []
     header = "".join(
         [sep, "| function", " "*47, " |    optimal   |   incumbent  | time[ms] | algorithm\n", sep])
-    bench_funcs = [
-        ackley(), sphere(), rosenbrock(), styblinski(dimension), k_tablet(),
-        weighted_sphere(), different_power(), griewank()]
-    algorithms = ["paraABC", "paraBA", "ABC",
-                  "BA", "GWO", "FA", "TLBO", "NM", "CG", "GD", "NV"][2:]
     L = len(bench_funcs)
     AL = len(algorithms)
     for algo in algorithms:
@@ -57,7 +55,7 @@ def main():
                 method=line_search,
                 num_cpu=num_cpu,
                 EXP=EXP,
-                grad=f.grad,
+                # grad=f.grad,
                 lb=f.boundaries[0],
                 ub=f.boundaries[1],
                 opt=f.opt,
@@ -65,6 +63,7 @@ def main():
             )
             param = getBestParams(dimension, f, algo, is_search=False)
             options = update_params(options, param)
+            print(options)
             stime = time.time()
             tmp = optimize(
                 dimension, f, algo=algo, **options)
@@ -73,7 +72,7 @@ def main():
             result = f"| {f.name:55} | {f.opt:12.2f} | {best:12.2f} | {etime-stime:8.3f} | {algo:9}({tmp.num_restart}, {tmp.optimal})"
             results.append(result)
             times += etime - stime
-            tmp.plot()
+            # tmp.plot()
             plot_time += time.time() - etime
         print(
             "finish!", f"total {times:.3f} ms, average {times / L:.3f} ms, plot {plot_time:.3f} ms")

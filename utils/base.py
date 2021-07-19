@@ -1,6 +1,8 @@
 from abc import ABCMeta, abstractmethod
+from functools import partial
 
 import numpy as np
+from jax import jit
 
 from utils.logging import setup_logger
 
@@ -20,6 +22,7 @@ class Function(metaclass=ABCMeta):
         self.__boundaries = None
 
     @abstractmethod
+    @partial(jit, static_argnums=0)
     def __call__(self, x):
         raise NotImplementedError
 
@@ -50,11 +53,12 @@ class Function(metaclass=ABCMeta):
     def boundaries(self, bound):
         self.__boundaries = bound
 
+    @partial(jit, static_argnums=0)
     def grad(self, x):
         """approximate gradient
         """
         logger.warning("Use approximate gradient.")
-        self._projection(x)
+
         n = x.shape[0]
         h = 1e-6
         I = np.eye(n, n)*h
@@ -64,11 +68,6 @@ class Function(metaclass=ABCMeta):
             [[(self(x_h[:, i]) - self(x_b[:, i])) / 2 / h]for i in range(n)])
         return _grad
 
+    @partial(jit, static_argnums=0)
     def hesse(self, x):
         raise NotImplementedError
-
-    def _projection(self, x):
-        x = np.asarray(x)
-        if (x < self.boundaries[0]).any() or (x > self.boundaries[1]).any():
-            x = np.clip(x, *self.boundaries)
-        return x

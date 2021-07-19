@@ -63,6 +63,6 @@ def optimize(dimension, f, max_iter, algo="CG", maximize=False, *args, **kwargs)
             dimension, f, max_iter, *args, **kwargs)
     elif algo == "NW":
         return grad_based.NW.minimize(
-            dimension, f, max_iter, *args, **kwargs)
+            dimension, f, *args, **kwargs)
     else:
         raise NotImplementedError

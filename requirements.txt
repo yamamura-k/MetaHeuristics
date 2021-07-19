@@ -4,3 +4,5 @@ scipy
 colorlog
 
 optuna
+jax
+jaxlib

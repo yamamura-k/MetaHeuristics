@@ -1,5 +1,6 @@
 import os
 import pickle as pkl
+from logging import warning
 
 import algorithm
 import optuna
@@ -33,7 +34,7 @@ def getParams(algo_name, trial):
         params["gamma"] = trial.suggest_uniform("gamma", 0, 5)
         params["rho"] = trial.suggest_uniform("rho", 0, 1)
         params["sigma"] = trial.suggest_uniform("sigma", 0, 1)
-    elif algo_name in {"GD", "CG", "NV", "NW"}:
+    elif algo_name in {"GD", "CG", "NV"}:
         del params["num_population"]
         lin_search = ["exact", "armijo"]
         if algo_name != "CG":
@@ -44,10 +45,6 @@ def getParams(algo_name, trial):
         if algo_name == "CG":
             params["beta_method"] = trial.suggest_categorical(
                 "beta_method", ["default", "heuristic", "PR", "FR", "DY", "HS"])
-        if algo_name == "NW":
-            params["eps"] = trial.suggest_uniform("alpha", 1e-9, 1e-4)
-    else:
-        raise NotImplementedError
     return params
 
 
@@ -64,7 +61,7 @@ def getBestParams(dimension, f, algo_name, n_jobs=2, n_trials=100, seed=0, is_se
         with open(filepath, "rb") as param:
             best_params = pkl.load(param)
     # otherwize, search best parameters with optuna
-    else:
+    elif is_search:
         study = optuna.create_study(direction="minimize",
                                     sampler=optuna.samplers.TPESampler(seed=seed))
         study.optimize(lambda trial: objective(
@@ -73,4 +70,6 @@ def getBestParams(dimension, f, algo_name, n_jobs=2, n_trials=100, seed=0, is_se
 
         with open(filepath, "wb") as f:
             pkl.dump(best_params, f, protocol=3)
+    else:
+        best_params = dict()
     return best_params

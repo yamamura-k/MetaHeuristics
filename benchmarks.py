@@ -1,4 +1,4 @@
-import numpy as np
+import jax.numpy as np
 
 from utils.base import Function, gen_matrix
 
@@ -14,6 +14,7 @@ class log_exp(Function):
             self.A = gen_matrix(m, n)
         else:
             self.A = A
+        self.boundaries = [-.5, .5]
 
     def __call__(self, x):
         return np.log(np.sum(np.exp(self.A@x + 1)))
@@ -22,7 +23,7 @@ class log_exp(Function):
         M = np.sum(np.exp(self.A@x + 1))
         _nabla = np.array([sum(a[i]*np.exp(a.T@x + 1)
                           for a in self.A)/M for i in range(len(x))])
-        return _nabla.reshape(len(_nabla), 1)
+        return _nabla
 
     def hesse(self, x, grad=None):
         if grad is None:
@@ -46,7 +47,6 @@ class ackley(Function):
         self.boundaries = np.array([-32.768, 32.768])
 
     def __call__(self, x):
-        self._projection(x)
         t1 = 20
         t2 = - 20 * np.exp(- 0.2 * np.sqrt(1.0 / len(x) * x.T@x))
         t3 = np.e
@@ -61,7 +61,6 @@ class sphere(Function):
         self.boundaries = np.array([-100, 100])
 
     def __call__(self, x):
-        self._projection(x)
         return x.T@x
 
 
@@ -72,7 +71,6 @@ class rosenbrock(Function):
         self.boundaries = np.array([-5, 5])
 
     def __call__(self, x):
-        self._projection(x)
         val = np.sum(100*(x[1:] - x[:-1]**2)**2 + (x[:-1] - 1)**2, axis=0)
         return val
 
@@ -85,63 +83,60 @@ class styblinski(Function):
         self.boundaries = np.array([-5, 4])
 
     def __call__(self, x):
-        self._projection(x)
-        t1 = np.sum(x ** 4)
-        t2 = - 16 * np.sum(x ** 2)
+        pow_x = x ** 2
+        t1 = np.sum(pow_x ** 2)
+        t2 = - 16 * np.sum(pow_x)
         t3 = 5 * np.sum(x)
         return 0.5 * (t1 + t2 + t3)
 
 
 class k_tablet(Function):
-    def __init__(self):
+    def __init__(self, dimension=1):
         super().__init__()
         self.opt = 0
         self.boundaries = np.array([-5.12, 5.12])
+        self.k = int(np.ceil(dimension / 4.0))
 
     def __call__(self, x):
-        self._projection(x)
-        k = int(np.ceil(len(x) / 4.0))
-        t1 = x[:k].T@x[:k]
+        t1 = x[:self.k].T@x[:self.k]
         t2 = 100 ** 2 * t1
         return t1 + t2
 
 
 class weighted_sphere(Function):
-    def __init__(self):
+    def __init__(self, dimension=1):
         super().__init__()
         self.opt = 0
         self.boundaries = np.array([-5.12, 5.12])
+        self.coef = np.arange(start=1, step=1, stop=dimension+1)
 
     def __call__(self, x):
-        self._projection(x)
-        val = np.array([(i + 1) * xi ** 2 for i, xi in enumerate(x)])
+        val = self.coef * x * x
         return np.sum(val)
 
 
 class different_power(Function):
-    def __init__(self):
+    def __init__(self, dimension=1):
         super().__init__()
         self.opt = 0
         self.boundaries = np.array([-1, 1])
+        self.coef = np.arange(start=1, step=1, stop=dimension+1)
 
     def __call__(self, x):
-        self._projection(x)
-        val = 0
-        for i, v in enumerate(x):
-            val += np.abs(v) ** (i + 2)
+        val = np.sum(np.power(np.abs(x), self.coef))
         return val
 
 
 class griewank(Function):
-    def __init__(self):
+    def __init__(self, dimension):
         super().__init__()
         self.opt = 0
         self.boundaries = np.array([-600, 600])
+        tmp = np.arange(start=1, step=1, stop=dimension+1)
+        self.w = 1.0 / tmp
 
     def __call__(self, x):
-        self._projection(x)
-        w = np.array([1.0 / np.sqrt(i + 1) for i in range(len(x))])
         t1 = 1
         t2 = 1.0 / 4000.0 * x.T@x
-        t3 = - np.prod(np.cos(x * w))
+        t3 = - np.prod(np.cos(x * self.w))
         return t1 + t2 + t3
