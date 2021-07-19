@@ -8,6 +8,7 @@ import ctypes
 from multiprocessing import Pool
 
 import numpy as np
+from jax import device_put
 from utils import numpy_to_value, setup_logger, value_to_numpy
 from utils.common import ResultManager
 
@@ -21,17 +22,17 @@ def step(i, t):
                                          * dimension] - best_x) * f[i]
     x_t = x[i*dimension:(i+1)*dimension] + v[i*dimension:(i+1)*dimension]
     obj_new = None
-    obj_t = objective(x_t)
+    obj_t = objective(device_put(x_t)).block_until_ready()
 
     if np.random.rand() > r[i]:
         eps = np.random.uniform(-1, 1)
         idx = np.random.randint(0, selection_max)
         x_new = x[idx*dimension:(idx+1)*dimension].copy()
         x_new += eps * np.average(A)
-        obj_new = objective(x_new)
+        obj_new = objective(device_put(x_new)).block_until_ready()
 
     x_random = np.random.uniform(*objective.boundaries, size=dimension)
-    obj_random = objective(x_random)
+    obj_random = objective(device_put(x_random)).block_until_ready()
     if (obj_new is None or obj_t > obj_new) and obj_t > obj_random:
         if obj_new is None or obj_new >= obj_random:
             value_to_numpy(x_share)[i*dimension:(i+1)*dimension] = x_random
@@ -99,7 +100,8 @@ def minimize(dimension, objective, max_iter, num_population=100, f_min=0,
     obj_best = np.inf
     best_x = None
     for i in range(num_population):
-        obj_tmp = objective(x[i*dimension:(i+1)*dimension])
+        obj_tmp = objective(device_put(
+            x[i*dimension:(i+1)*dimension])).block_until_ready()
         if obj_tmp < obj_best:
             obj_best = obj_tmp
             best_x = x[i*dimension:(i+1)*dimension].copy()

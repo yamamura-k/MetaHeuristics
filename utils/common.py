@@ -5,7 +5,7 @@ from typing import Callable
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
-from jax import grad, hessian, jit, partial
+from jax import device_put, grad, hessian, jit, partial
 
 from utils.base import Function
 

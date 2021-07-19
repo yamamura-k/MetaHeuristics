@@ -1,4 +1,5 @@
 import numpy as np
+from jax import device_put
 from utils import ResultManager, getInitialPoint, setup_logger
 
 np.random.seed(0)

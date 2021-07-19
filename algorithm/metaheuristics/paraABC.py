@@ -8,6 +8,7 @@ import ctypes
 from multiprocessing import Pool
 
 import numpy as np
+from jax import device_put
 from utils import numpy_to_value, setup_logger, value_to_numpy, value_to_numpy2
 from utils.common import ResultManager
 
@@ -22,7 +23,7 @@ def update(i):
     k = np.random.randint(0, num_population-1)
     phi = np.random.normal()
     x_i[j] -= phi*(x_i[j] - x[k*dimension + j])
-    v_new = objective(x_i)
+    v_new = objective(device_put(x_i)).block_until_ready()
     if v_new <= v_share[i]:
         value_to_numpy(x_share)[
             i*dimension:(i+1)*dimension] = x_i
@@ -31,7 +32,7 @@ def update(i):
 
 def random_update(i):
     x_i = np.random.uniform(*objective.boundaries, size=dimension)
-    v_new = objective(x_i)
+    v_new = objective(device_put(x_i)).block_until_ready()
     if v_new <= v_share[i]:
         value_to_numpy(x_share)[
             i*dimension:(i+1)*dimension] = x_i
@@ -65,7 +66,7 @@ def minimize(dimension, objective, max_iter, max_visit=10,
              num_population=100, num_cpu=None, *args, **kwargs):
     # step1 : initialization
     x = np.random.uniform(*objective.boundaries, size=num_population*dimension)
-    v = np.array([objective(x[i*dimension:(i+1)*dimension])
+    v = np.array([objective(device_put(x[i*dimension:(i+1)*dimension])).block_until_ready()
                  for i in range(num_population)])
     all_candidates = list(range(num_population))
     cnt = np.zeros(num_population)
