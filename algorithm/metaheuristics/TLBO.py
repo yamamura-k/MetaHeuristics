@@ -7,7 +7,8 @@ logger = setup_logger(__name__)
 
 def minimize(dimension, objective, max_iter, num_population=100, *args, **kwargs):
     x = getInitialPoint((num_population, dimension), objective)
-    obj_vals = np.array([objective(t) for t in x])
+    obj_vals = np.array(
+        [objective(device_put(t)).block_until_ready() for t in x])
     all_idx = np.arange(num_population)
     result = ResultManager(objective, __name__, logger, *args, **kwargs)
 
@@ -30,7 +31,8 @@ def minimize(dimension, objective, max_iter, num_population=100, *args, **kwargs
         x_new[other_idx] = x[other_idx] + r * \
             (x[other_idx] - x[comp_idxs[other_idx]])
 
-        obj_new = np.array([objective(t) for t in x_new])
+        obj_new = np.array(
+            [objective(device_put(t)).block_until_ready() for t in x_new])
         update_idxs = np.where(obj_new < obj_vals)
 
         x[update_idxs] = x_new[update_idxs]

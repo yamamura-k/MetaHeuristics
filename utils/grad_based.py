@@ -20,7 +20,7 @@ def lin_search(x, d, objective, alpha=None, method="exact"):
 def wolfe(x, d, objective, c1=1e-5, c2=1-1e-5, alpha=10):
     a = 0
     b = np.inf
-    nab = objective.grad(x)
+    nab = objective.grad(device_put(x)).block_until_ready()
     f = objective(x)
     phi_dif0 = np.dot(nab.T, d)
     assert phi_dif0 <= 0
@@ -45,7 +45,7 @@ def wolfe(x, d, objective, c1=1e-5, c2=1-1e-5, alpha=10):
 
 
 def armijo(x, d, objective, c1=0.5, alpha=10, rho=0.9):
-    nab = objective.grad(x)
+    nab = objective.grad(device_put(x)).block_until_ready()
     f = objective(x)
     phi_dif0 = np.dot(nab.T, d)
     if phi_dif0 >= 0:
@@ -66,7 +66,7 @@ def check_grad(x, objective):
     x_b = -I + x
     grad = np.array(
         [[(objective(x_h[:, i]) - objective(x_b[:, i])) / 2 / h]for i in range(n)])
-    grad_ = objective.grad(x)
+    grad_ = objective.grad(device_put(x)).block_until_ready()
     diff = np.abs(grad_ - grad)
 
     assert (diff < 1e-8).all()
