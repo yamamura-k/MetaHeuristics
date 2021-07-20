@@ -2,3 +2,8 @@ numpy
 matplotlib
 scipy
 colorlog
+
+optuna
+autograd
+# jax
+# jaxlib

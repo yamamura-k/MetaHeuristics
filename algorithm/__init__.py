@@ -1,11 +1,11 @@
-from utils.common import FunctionWrapper
+from utils.common import FunctionWrapper, _FunctionWrapper
 
 import algorithm.grad_based as grad_based
 import algorithm.metaheuristics as metaheuristics
 import algorithm.nelder_mead as nelder_mead
 
 
-def optimize(dimension, f, max_iter, algo="CG", maximize=False, *args, **kwargs):
+def optimize(dimension, f, max_iter, algo="CG", maximize=False, enable_grad=False, *args, **kwargs):
     """
 
     Parameters
@@ -34,7 +34,11 @@ def optimize(dimension, f, max_iter, algo="CG", maximize=False, *args, **kwargs)
     NotImplementedError
         [description]
     """
-    f = FunctionWrapper(f, maximize=maximize, *args, **kwargs)
+    if enable_grad:
+        f = FunctionWrapper(f, maximize=maximize, *args, **kwargs)
+    else:
+        f = _FunctionWrapper(f, maximize=maximize, *args, **kwargs)
+
     if algo == "ABC":
         return metaheuristics.ABC.minimize(dimension, f, max_iter, *args, **kwargs)
     elif algo == "paraABC":
@@ -63,6 +67,6 @@ def optimize(dimension, f, max_iter, algo="CG", maximize=False, *args, **kwargs)
             dimension, f, max_iter, *args, **kwargs)
     elif algo == "NW":
         return grad_based.NW.minimize(
-            dimension, f, max_iter, *args, **kwargs)
+            dimension, f, *args, **kwargs)
     else:
         raise NotImplementedError

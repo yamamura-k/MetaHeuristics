@@ -1,9 +1,12 @@
 import os
+import time
 from typing import Callable
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
+# from jax import grad, hessian, jit, partial
+from autograd import grad, hessian
 
 from utils.base import Function
 
@@ -34,16 +37,36 @@ def dimension_wise_diversity_measurement(x):
     return div
 
 
-class FunctionWrapper(Function):
-    def __init__(self, objective, grad=None, hesse=None, lb=None, ub=None, opt=None, name=None, maximize=False, *args, **kwargs):
+def update_params(base_param: dict, additional: dict):
+    """overwrite base parameter dictionary
+
+    Parameters
+    ----------
+    base_param : dict
+        base param dictionary
+    additional : dict
+        additional param dictionary
+
+    Returns
+    -------
+    dict
+        updated parameter dictionary
+    """
+    for key in additional:
+        base_param[key] = additional[key]
+    return base_param
+
+
+class _FunctionWrapper(Function):
+    def __init__(self, objective, lb=None, ub=None, opt=None, name=None, maximize=False, *args, **kwargs):
         super().__init__()
         assert isinstance(objective, Callable)
-        assert (grad is None) or isinstance(grad, Callable)
-        assert (hesse is None) or isinstance(hesse, Callable)
         self.objective = objective
-        self._grad = grad
-        self._hesse = hesse
         self.sign = -1 if maximize else 1
+        if isinstance(objective, Function):
+            self.boundaries = objective.boundaries
+            self.opt = objective.opt
+            self.name = objective.name
         if (ub is not None) and (lb is not None):
             self.boundaries = (lb, ub)
         if opt is not None:
@@ -52,23 +75,8 @@ class FunctionWrapper(Function):
             self.name = name
 
     def __call__(self, x):
-        self._projection(x)
+        x = np.clip(x, *self.boundaries)
         return self.sign*self.objective(x)
-
-    def grad(self, x):
-        self._projection(x)
-        if self._grad is None:
-            return self.sign*super().grad(x)
-        else:
-            return self.sign*self._grad(x)
-
-    def hesse(self, x):
-        self._projection(x)
-        if self._hesse is None:
-            return self.sign*super().hesse(x)
-        else:
-            return self.sign*self._hesse(x)
-
 
 class ResultManager(object):
     def __init__(self, objective, algo_name, logger, limit=np.inf, EXP=False, *args, **kwargs) -> None:
@@ -86,6 +94,9 @@ class ResultManager(object):
         self.optimal = False
 
         self.EXP = EXP
+        if not EXP:
+            self.time = []
+            self.stime = time.time()
 
         self.pos = []
         self.best_pos = []
@@ -94,8 +105,13 @@ class ResultManager(object):
         self.divs = []
         self.div_maxs = []
 
-    def post_process_per_iter(self, x, best_x, iteration, beta=None, alpha=None):
-        assert len(x.shape) == 2
+    def post_process_per_iter(self, x, best_x, iteration, beta=None, alpha=None, lam=None, grad=None):
+
+        if len(x.shape) == 1:
+            dimension = x.shape[0]
+            x = x.reshape(dimension, 1)
+            best_x = best_x.reshape(dimension, 1)
+
         x = np.clip(x, *self.objective.boundaries)
         best_x = np.clip(best_x, *self.objective.boundaries)
 
@@ -111,40 +127,54 @@ class ResultManager(object):
         self.div_max = max(self.div_max, div)
         self.divs.append(div)
         self.div_maxs.append(self.div_max)
-        message = [f"iteration {iteration} [ best objective ] {self.best_obj}"]
+        message = [
+            f"iteration {iteration}",
+            f"[ best objective ] {self.best_obj}",
+            f"({self.objective.name})"]
+
         if beta is not None:
             message.append(f"[ beta ] {beta}")
         if alpha is not None:
             message.append(f"[ alpha ] {alpha}")
+            if alpha == 0:
+                self.num_restart += 1
+                x = getInitialPoint(x.shape, self.objective)
+                self.logger.warning(
+                    "getInitialPoint current vector because alpha = 0.")
+        if lam is not None:
+            message.append(f"[ lambda ] {lam}")
         self.logger.info(" ".join(message))
         self.logger.info(f"XPL is {div/self.div_max * 100}")
         self.logger.info(
             f"XPT is {abs(div - self.div_max)/self.div_max * 100}")
-        if alpha is not None and alpha == 0:
-            self.num_restart += 1
-            x = getInitialPoint(x.shape, self.objective)
-            self.logger.warning(
-                "getInitialPoint current vector because alpha = 0.")
 
         if self.not_updated > self.limit:
             self.num_restart += 1
             self.not_updated = 0
             x = getInitialPoint(x.shape, self.objective)
             self.logger.warning(
-                "getInitialPoint each population for diversification")
+                "getInitialPoint each population for diversification.")
+
+        if grad is not None and (grad == 0).all():
+            self.logger.warning(
+                "Converged to local opt. Randomize current point.")
+            x = getInitialPoint(x.shape, self.objective)
 
         if self.best_obj == self.objective.opt:
             self.logger.info("Optimal solution is found.")
             self.optimal = True
+
         if not self.EXP:
             gtub = np.sum(x > self.objective.boundaries[1])
             ltlb = np.sum(x < self.objective.boundaries[0])
             out_of_bounds = ltlb + gtub
             if out_of_bounds:
-                self.logger.warning(
+                self.logger.critical(
                     f"{out_of_bounds} elements are out of bounds.")
             self.pos.append(x.copy())
             self.best_pos.append(best_x.copy())
+            self.time.append(time.time()-self.stime)
+            self.logger.debug(f"{self.time[-1]} [ ms ] elapsed.")
 
         return self.optimal
 
@@ -194,3 +224,52 @@ class ResultManager(object):
         # ani.save(f"{save_dir}/{self.objective.name}_{algo_name}.mp4", writer="ffmpeg")
         plt.clf()
         plt.close()
+
+import autograd.numpy as np
+class FunctionWrapper(Function):
+    def __init__(self, objective, _grad=None, _hesse=None, lb=None, ub=None, opt=None, name=None, maximize=False, *args, **kwargs):
+        super().__init__()
+        assert isinstance(objective, Callable)
+        assert (_grad is None) or isinstance(_grad, Callable)
+        assert (_hesse is None) or isinstance(_hesse, Callable)
+        self.objective = objective
+        if _grad is None:
+            self._grad = grad(self)
+        else:
+            self._grad = _grad
+        if _hesse is None:
+            self._hesse = hessian(self)
+        else:
+            self._hesse = _hesse
+        self.sign = -1 if maximize else 1
+        if isinstance(objective, Function):
+            self.boundaries = objective.boundaries
+            self.opt = objective.opt
+            self.name = objective.name
+        if (ub is not None) and (lb is not None):
+            self.boundaries = (lb, ub)
+        if opt is not None:
+            self.opt = opt
+        if name is not None:
+            self.name = name
+
+    # @partial(jit, static_argnums=0)
+    def __call__(self, x):
+        x = np.clip(x, *self.boundaries)
+        return self.sign*self.objective(x)
+
+    # @partial(jit, static_argnums=0)
+    def grad(self, x):
+        x = np.clip(x, *self.boundaries)
+        if self._grad is None:
+            return self.sign*super().grad(x)
+        else:
+            return self.sign*self._grad(x)
+
+    # @partial(jit, static_argnums=0)
+    def hesse(self, x):
+        x = np.clip(x, *self.boundaries)
+        if self._hesse is None:
+            return self.sign*super().hesse(x)
+        else:
+            return self.sign*self._hesse(x)

@@ -15,7 +15,7 @@ logger = setup_logger(__name__)
 
 class Function(metaclass=ABCMeta):
     def __init__(self):
-        self.name = "function"
+        self.__name = self.__class__.__name__
         self.opt = -np.inf
         self.__boundaries = None
 
@@ -26,6 +26,18 @@ class Function(metaclass=ABCMeta):
     @property
     def boundaries(self):
         pass
+
+    @property
+    def name(self):
+        pass
+
+    @name.getter
+    def name(self):
+        return self.__name
+
+    @name.setter
+    def name(self, _name):
+        self.__name = _name
 
     @boundaries.getter
     def boundaries(self):
@@ -42,7 +54,7 @@ class Function(metaclass=ABCMeta):
         """approximate gradient
         """
         logger.warning("Use approximate gradient.")
-        self._projection(x)
+
         n = x.shape[0]
         h = 1e-6
         I = np.eye(n, n)*h
@@ -54,9 +66,3 @@ class Function(metaclass=ABCMeta):
 
     def hesse(self, x):
         raise NotImplementedError
-
-    def _projection(self, x):
-        x = np.asarray(x)
-        if (x < self.boundaries[0]).any() or (x > self.boundaries[1]).any():
-            x = np.clip(x, *self.boundaries)
-        return x
