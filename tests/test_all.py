@@ -1,15 +1,21 @@
 from algorithm import optimize
-from benchmarks import (ackley, different_power, griewank, k_tablet,
+from benchmarks import (ackley, different_power, griewank, k_tablet, log_exp,
                         rosenbrock, sphere, styblinski, weighted_sphere)
+
 
 
 def test_all():
     dimension = 3
     num_population = 10
     max_iter = 10
-    bench_funcs = [
-        ackley(), sphere(), rosenbrock(), styblinski(dimension), k_tablet(),
-        weighted_sphere(), different_power(), griewank()]
+    enable_grad = True
+    if enable_grad:
+        bench_funcs = [
+            ackley(), sphere(), rosenbrock(), styblinski(dimension),
+            k_tablet(dimension), weighted_sphere(dimension),
+            different_power(dimension), griewank(dimension),
+            log_exp(n=dimension)
+        ]
     algorithms = ["paraABC", "paraBA", "ABC",
                   "BA", "GWO", "FA", "TLBO", "NM", "CG", "GD", "NV"]
 
@@ -20,7 +26,7 @@ def test_all():
                 method="armijo",
                 num_cpu=2,
                 EXP=True,
-                grad=f.grad,
+                enable_grad=enable_grad,
                 lb=f.boundaries[0],
                 ub=f.boundaries[1],
                 opt=f.opt,
