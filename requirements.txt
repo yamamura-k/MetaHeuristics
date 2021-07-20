@@ -4,5 +4,6 @@ scipy
 colorlog
 
 optuna
-jax
-jaxlib
+autograd
+# jax
+# jaxlib

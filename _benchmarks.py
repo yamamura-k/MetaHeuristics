@@ -1,4 +1,4 @@
-import autograd.numpy as np
+import numpy as np
 
 from utils.base import Function, gen_matrix
 
@@ -7,7 +7,7 @@ Reference : https://qiita.com/nabenabe0928/items/08ed6495853c3dd08f1e
 """
 
 
-class log_exp(Function):
+class log_exp_without_grad(Function):
     def __init__(self, A=None, n=10, m=100):
         super().__init__()
         if A is None:
@@ -40,7 +40,7 @@ class log_exp(Function):
         return H.reshape((n, n))
 
 
-class ackley(Function):
+class ackley_without_grad(Function):
     def __init__(self):
         super().__init__()
         self.opt = 0
@@ -54,7 +54,7 @@ class ackley(Function):
         return t1 + t2 + t3 + t4
 
 
-class sphere(Function):
+class sphere_without_grad(Function):
     def __init__(self):
         super().__init__()
         self.opt = 0
@@ -64,7 +64,7 @@ class sphere(Function):
         return x.T@x
 
 
-class rosenbrock(Function):
+class rosenbrock_without_grad(Function):
     def __init__(self):
         super().__init__()
         self.opt = 0
@@ -75,7 +75,7 @@ class rosenbrock(Function):
         return val
 
 
-class styblinski(Function):
+class styblinski_without_grad(Function):
     def __init__(self, dimension=1):
         super().__init__()
         # approximate optimal value is self.opt * number of variables
@@ -90,7 +90,7 @@ class styblinski(Function):
         return 0.5 * (t1 + t2 + t3)
 
 
-class k_tablet(Function):
+class k_tablet_without_grad(Function):
     def __init__(self, dimension=1):
         super().__init__()
         self.opt = 0
@@ -103,7 +103,7 @@ class k_tablet(Function):
         return t1 + t2
 
 
-class weighted_sphere(Function):
+class weighted_sphere_without_grad(Function):
     def __init__(self, dimension=1):
         super().__init__()
         self.opt = 0
@@ -115,7 +115,7 @@ class weighted_sphere(Function):
         return np.sum(val)
 
 
-class different_power(Function):
+class different_power_without_grad(Function):
     def __init__(self, dimension=1):
         super().__init__()
         self.opt = 0
@@ -127,7 +127,7 @@ class different_power(Function):
         return val
 
 
-class griewank(Function):
+class griewank_without_grad(Function):
     def __init__(self, dimension):
         super().__init__()
         self.opt = 0

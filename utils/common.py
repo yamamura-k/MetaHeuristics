@@ -5,7 +5,8 @@ from typing import Callable
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
-from jax import grad, hessian, jit, partial
+# from jax import grad, hessian, jit, partial
+from autograd import grad, hessian
 
 from utils.base import Function
 
@@ -56,6 +57,28 @@ def update_params(base_param: dict, additional: dict):
     return base_param
 
 
+class _FunctionWrapper(Function):
+    def __init__(self, objective, lb=None, ub=None, opt=None, name=None, maximize=False, *args, **kwargs):
+        super().__init__()
+        assert isinstance(objective, Callable)
+        self.objective = objective
+        self.sign = -1 if maximize else 1
+        if isinstance(objective, Function):
+            self.boundaries = objective.boundaries
+            self.opt = objective.opt
+            self.name = objective.name
+        if (ub is not None) and (lb is not None):
+            self.boundaries = (lb, ub)
+        if opt is not None:
+            self.opt = opt
+        if name is not None:
+            self.name = name
+
+    def __call__(self, x):
+        x = np.clip(x, *self.boundaries)
+        return self.sign*self.objective(x)
+
+
 class FunctionWrapper(Function):
     def __init__(self, objective, _grad=None, _hesse=None, lb=None, ub=None, opt=None, name=None, maximize=False, *args, **kwargs):
         super().__init__()
@@ -83,12 +106,12 @@ class FunctionWrapper(Function):
         if name is not None:
             self.name = name
 
-    @partial(jit, static_argnums=0)
+    # @partial(jit, static_argnums=0)
     def __call__(self, x):
         x = np.clip(x, *self.boundaries)
         return self.sign*self.objective(x)
 
-    @partial(jit, static_argnums=0)
+    # @partial(jit, static_argnums=0)
     def grad(self, x):
         x = np.clip(x, *self.boundaries)
         if self._grad is None:
@@ -96,7 +119,7 @@ class FunctionWrapper(Function):
         else:
             return self.sign*self._grad(x)
 
-    @partial(jit, static_argnums=0)
+    # @partial(jit, static_argnums=0)
     def hesse(self, x):
         x = np.clip(x, *self.boundaries)
         if self._hesse is None:
