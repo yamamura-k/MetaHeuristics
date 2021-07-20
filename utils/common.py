@@ -78,56 +78,6 @@ class _FunctionWrapper(Function):
         x = np.clip(x, *self.boundaries)
         return self.sign*self.objective(x)
 
-
-class FunctionWrapper(Function):
-    def __init__(self, objective, _grad=None, _hesse=None, lb=None, ub=None, opt=None, name=None, maximize=False, *args, **kwargs):
-        super().__init__()
-        assert isinstance(objective, Callable)
-        assert (_grad is None) or isinstance(_grad, Callable)
-        assert (_hesse is None) or isinstance(_hesse, Callable)
-        self.objective = objective
-        if _grad is None:
-            self._grad = grad(self)
-        else:
-            self._grad = _grad
-        if _hesse is None:
-            self._hesse = hessian(self)
-        else:
-            self._hesse = _hesse
-        self.sign = -1 if maximize else 1
-        if isinstance(objective, Function):
-            self.boundaries = objective.boundaries
-            self.opt = objective.opt
-            self.name = objective.name
-        if (ub is not None) and (lb is not None):
-            self.boundaries = (lb, ub)
-        if opt is not None:
-            self.opt = opt
-        if name is not None:
-            self.name = name
-
-    # @partial(jit, static_argnums=0)
-    def __call__(self, x):
-        x = np.clip(x, *self.boundaries)
-        return self.sign*self.objective(x)
-
-    # @partial(jit, static_argnums=0)
-    def grad(self, x):
-        x = np.clip(x, *self.boundaries)
-        if self._grad is None:
-            return self.sign*super().grad(x)
-        else:
-            return self.sign*self._grad(x)
-
-    # @partial(jit, static_argnums=0)
-    def hesse(self, x):
-        x = np.clip(x, *self.boundaries)
-        if self._hesse is None:
-            return self.sign*super().hesse(x)
-        else:
-            return self.sign*self._hesse(x)
-
-
 class ResultManager(object):
     def __init__(self, objective, algo_name, logger, limit=np.inf, EXP=False, *args, **kwargs) -> None:
         super().__init__()
@@ -274,3 +224,52 @@ class ResultManager(object):
         # ani.save(f"{save_dir}/{self.objective.name}_{algo_name}.mp4", writer="ffmpeg")
         plt.clf()
         plt.close()
+
+import autograd.numpy as np
+class FunctionWrapper(Function):
+    def __init__(self, objective, _grad=None, _hesse=None, lb=None, ub=None, opt=None, name=None, maximize=False, *args, **kwargs):
+        super().__init__()
+        assert isinstance(objective, Callable)
+        assert (_grad is None) or isinstance(_grad, Callable)
+        assert (_hesse is None) or isinstance(_hesse, Callable)
+        self.objective = objective
+        if _grad is None:
+            self._grad = grad(self)
+        else:
+            self._grad = _grad
+        if _hesse is None:
+            self._hesse = hessian(self)
+        else:
+            self._hesse = _hesse
+        self.sign = -1 if maximize else 1
+        if isinstance(objective, Function):
+            self.boundaries = objective.boundaries
+            self.opt = objective.opt
+            self.name = objective.name
+        if (ub is not None) and (lb is not None):
+            self.boundaries = (lb, ub)
+        if opt is not None:
+            self.opt = opt
+        if name is not None:
+            self.name = name
+
+    # @partial(jit, static_argnums=0)
+    def __call__(self, x):
+        x = np.clip(x, *self.boundaries)
+        return self.sign*self.objective(x)
+
+    # @partial(jit, static_argnums=0)
+    def grad(self, x):
+        x = np.clip(x, *self.boundaries)
+        if self._grad is None:
+            return self.sign*super().grad(x)
+        else:
+            return self.sign*self._grad(x)
+
+    # @partial(jit, static_argnums=0)
+    def hesse(self, x):
+        x = np.clip(x, *self.boundaries)
+        if self._hesse is None:
+            return self.sign*super().hesse(x)
+        else:
+            return self.sign*self._hesse(x)
